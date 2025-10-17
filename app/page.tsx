@@ -32,7 +32,7 @@ export default function Home() {
                 Get started →
               </a>
               <a
-                href="https://github.com"
+                href="https://github.com/fahadwaseem8/snippit"
                 target="_blank"
                 rel="noreferrer"
                 className="border border-foreground/20 px-6 py-3 rounded-lg font-medium hover:bg-foreground/5 transition"
@@ -154,7 +154,7 @@ export default function Home() {
               Get started — it&apos;s free
             </a>
             <a
-              href="https://github.com"
+              href="https://github.com/fahadwaseem8/snippit"
               target="_blank"
               rel="noreferrer"
               className="border border-foreground/20 px-8 py-4 rounded-lg font-medium text-lg hover:bg-foreground/5 transition"

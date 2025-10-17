@@ -11,7 +11,7 @@ export default function Header() {
         
         <div className="flex items-center gap-6">
           <a
-            href="https://github.com"
+            href="https://github.com/fahadwaseem8/snippit"
             target="_blank"
             rel="noreferrer"
             className="text-sm text-foreground/70 hover:text-foreground transition-colors"
