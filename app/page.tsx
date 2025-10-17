@@ -26,7 +26,7 @@ export default function Home() {
             </p>
             <div className="flex gap-4 flex-wrap">
               <a
-                href="#signup"
+                href="/register"
                 className="bg-foreground text-background px-6 py-3 rounded-lg font-medium hover:opacity-90 transition"
               >
                 Get started →
@@ -144,11 +144,11 @@ export default function Home() {
             Ready to stop searching for that snippet?
           </h2>
           <p className="text-foreground/60 text-lg">
-            Join developers who've already saved hours of copy-paste hunting.
+            Join developers who&apos;ve already saved hours of copy-paste hunting.
           </p>
           <div className="flex gap-4 justify-center flex-wrap">
             <a
-              href="#signup"
+              href="/register"
               className="bg-foreground text-background px-8 py-4 rounded-lg font-medium text-lg hover:opacity-90 transition"
             >
               Get started — it&apos;s free
