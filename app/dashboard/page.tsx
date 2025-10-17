@@ -44,16 +44,17 @@ export default function DashboardPage() {
   useEffect(() => {
     const checkUser = async () => {
       const supabase = createClient();
-      const { data: { user: authUser } } = await supabase.auth.getUser();
+      // Get cached session instead of making API call
+      const { data: { session } } = await supabase.auth.getSession();
       
-      if (!authUser) {
+      if (!session?.user) {
         router.push("/login");
         return;
       }
       
       setUser({
-        email: authUser.email || "",
-        id: authUser.id,
+        email: session.user.email || "",
+        id: session.user.id,
       });
       setLoading(false);
     };
