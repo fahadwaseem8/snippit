@@ -1,6 +1,20 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import CodeMirror from "@uiw/react-codemirror";
+import { javascript } from "@codemirror/lang-javascript";
+import { python } from "@codemirror/lang-python";
+import { java } from "@codemirror/lang-java";
+import { cpp } from "@codemirror/lang-cpp";
+import { php } from "@codemirror/lang-php";
+import { rust } from "@codemirror/lang-rust";
+import { sql } from "@codemirror/lang-sql";
+import { html } from "@codemirror/lang-html";
+import { css } from "@codemirror/lang-css";
+import { json } from "@codemirror/lang-json";
+import { markdown } from "@codemirror/lang-markdown";
+import { xml } from "@codemirror/lang-xml";
+import { snippitTheme } from "@/lib/codemirror-theme";
 
 interface Snippet {
   id: string;
@@ -24,6 +38,44 @@ const LANGUAGES = [
   "powershell", "dockerfile", "graphql", "lua", "perl", "elixir", "clojure",
   "haskell", "ocaml", "fsharp", "vim", "makefile", "toml", "ini", "plaintext", "other"
 ];
+
+// Helper function to get CodeMirror language extension
+const getLanguageExtension = (lang: string) => {
+  switch (lang) {
+    case "javascript":
+    case "typescript":
+      return javascript({ typescript: lang === "typescript" });
+    case "python":
+      return python();
+    case "java":
+      return java();
+    case "cpp":
+    case "c":
+      return cpp();
+    case "php":
+      return php();
+    case "rust":
+      return rust();
+    case "sql":
+      return sql();
+    case "html":
+      return html();
+    case "css":
+    case "scss":
+    case "sass":
+    case "less":
+      return css();
+    case "json":
+      return json();
+    case "markdown":
+      return markdown();
+    case "xml":
+    case "yaml":
+      return xml();
+    default:
+      return javascript(); // fallback
+  }
+};
 
 export default function SnippetModal({ isOpen, onClose, onSave, editingSnippet }: SnippetModalProps) {
   const [title, setTitle] = useState("");
@@ -114,15 +166,38 @@ export default function SnippetModal({ isOpen, onClose, onSave, editingSnippet }
             <label htmlFor="code" className="block text-sm font-mono text-foreground/70 mb-2">
               <span className="text-purple-400">const</span> code = <span className="text-yellow-400">`</span>
             </label>
-            <textarea
-              id="code"
-              value={code}
-              onChange={(e) => setCode(e.target.value)}
-              placeholder="// Your code here..."
-              required
-              rows={12}
-              className="w-full px-4 py-3 bg-black/40 border border-foreground/20 rounded-lg focus:border-foreground/40 focus:outline-none focus:ring-2 focus:ring-foreground/10 transition font-mono text-sm resize-none"
-            />
+            <div className="border border-foreground/20 rounded-lg overflow-hidden">
+              <CodeMirror
+                value={code}
+                height="300px"
+                theme={snippitTheme}
+                extensions={[getLanguageExtension(language)]}
+                onChange={(value) => setCode(value)}
+                placeholder="// Your code here..."
+                basicSetup={{
+                  lineNumbers: true,
+                  highlightActiveLineGutter: true,
+                  highlightSpecialChars: true,
+                  foldGutter: true,
+                  drawSelection: true,
+                  dropCursor: true,
+                  allowMultipleSelections: true,
+                  indentOnInput: true,
+                  bracketMatching: true,
+                  closeBrackets: true,
+                  autocompletion: true,
+                  rectangularSelection: true,
+                  crosshairCursor: true,
+                  highlightActiveLine: true,
+                  highlightSelectionMatches: true,
+                  closeBracketsKeymap: true,
+                  searchKeymap: true,
+                  foldKeymap: true,
+                  completionKeymap: true,
+                  lintKeymap: true,
+                }}
+              />
+            </div>
           </div>
 
           <div className="flex items-center gap-2">

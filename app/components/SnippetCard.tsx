@@ -1,6 +1,58 @@
 "use client";
 
 import { useState } from "react";
+import CodeMirror from "@uiw/react-codemirror";
+import { javascript } from "@codemirror/lang-javascript";
+import { python } from "@codemirror/lang-python";
+import { java } from "@codemirror/lang-java";
+import { cpp } from "@codemirror/lang-cpp";
+import { php } from "@codemirror/lang-php";
+import { rust } from "@codemirror/lang-rust";
+import { sql } from "@codemirror/lang-sql";
+import { html } from "@codemirror/lang-html";
+import { css } from "@codemirror/lang-css";
+import { json } from "@codemirror/lang-json";
+import { markdown } from "@codemirror/lang-markdown";
+import { xml } from "@codemirror/lang-xml";
+import { snippitTheme } from "@/lib/codemirror-theme";
+
+// Helper function to get CodeMirror language extension
+const getLanguageExtension = (lang: string) => {
+  switch (lang) {
+    case "javascript":
+    case "typescript":
+      return javascript({ typescript: lang === "typescript" });
+    case "python":
+      return python();
+    case "java":
+      return java();
+    case "cpp":
+    case "c":
+      return cpp();
+    case "php":
+      return php();
+    case "rust":
+      return rust();
+    case "sql":
+      return sql();
+    case "html":
+      return html();
+    case "css":
+    case "scss":
+    case "sass":
+    case "less":
+      return css();
+    case "json":
+      return json();
+    case "markdown":
+      return markdown();
+    case "xml":
+    case "yaml":
+      return xml();
+    default:
+      return javascript(); // fallback
+  }
+};
 
 interface Snippet {
   id: string;
@@ -91,9 +143,38 @@ export default function SnippetCard({
       </div>
 
       {/* Code preview */}
-      <pre className="p-4 overflow-auto max-h-48 text-sm leading-relaxed bg-black/20">
-        <code className="font-mono text-foreground/90">{snippet.code}</code>
-      </pre>
+      <div className="overflow-hidden">
+        <CodeMirror
+          value={snippet.code}
+          theme={snippitTheme}
+          extensions={[getLanguageExtension(snippet.language)]}
+          editable={false}
+          readOnly={true}
+          maxHeight="200px"
+          basicSetup={{
+            lineNumbers: true,
+            highlightActiveLineGutter: false,
+            highlightSpecialChars: true,
+            foldGutter: false,
+            drawSelection: false,
+            dropCursor: false,
+            allowMultipleSelections: false,
+            indentOnInput: false,
+            bracketMatching: true,
+            closeBrackets: false,
+            autocompletion: false,
+            rectangularSelection: false,
+            crosshairCursor: false,
+            highlightActiveLine: false,
+            highlightSelectionMatches: false,
+            closeBracketsKeymap: false,
+            searchKeymap: false,
+            foldKeymap: false,
+            completionKeymap: false,
+            lintKeymap: false,
+          }}
+        />
+      </div>
     </div>
   );
 }
