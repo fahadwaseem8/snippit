@@ -2,15 +2,44 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: Implement login logic with Supabase
-    console.log("Login:", { email, password });
+    setError("");
+    setLoading(true);
+
+    try {
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setError(data.error || "Login failed");
+        setLoading(false);
+        return;
+      }
+
+      // Redirect to dashboard on success
+      router.push("/dashboard");
+      router.refresh();
+    } catch (err) {
+      setError("An unexpected error occurred");
+      setLoading(false);
+    }
   };
 
   return (
@@ -52,6 +81,12 @@ export default function LoginPage() {
             </div>
 
             <form onSubmit={handleSubmit} className="grid gap-5">
+              {error && (
+                <div className="px-4 py-3 bg-red-500/10 border border-red-500/30 rounded-lg text-sm text-red-400 font-mono">
+                  <span className="text-red-300">Error:</span> {error}
+                </div>
+              )}
+
               <div className="grid gap-2">
                 <label htmlFor="email" className="text-sm font-mono text-foreground/70">
                   <span className="text-blue-400">const</span> email = <span className="text-yellow-400">&quot;</span>
@@ -84,9 +119,18 @@ export default function LoginPage() {
 
               <button
                 type="submit"
-                className="w-full bg-foreground text-background px-4 py-3 rounded-lg font-medium hover:opacity-90 transition mt-2 font-mono"
+                disabled={loading}
+                className="w-full bg-foreground text-background px-4 py-3 rounded-lg font-medium hover:opacity-90 transition mt-2 font-mono disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <span className="text-green-400">→</span> auth.login()
+                {loading ? (
+                  <>
+                    <span className="text-yellow-400">⏳</span> auth.login()...
+                  </>
+                ) : (
+                  <>
+                    <span className="text-green-400">→</span> auth.login()
+                  </>
+                )}
               </button>
             </form>
 

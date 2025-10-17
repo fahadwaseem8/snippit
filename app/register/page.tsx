@@ -6,11 +6,42 @@ import Link from "next/link";
 export default function RegisterPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: Implement register logic with Supabase
-    console.log("Register:", { email, password });
+    setError("");
+    setSuccess(false);
+    setLoading(true);
+
+    try {
+      const response = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setError(data.error || "Registration failed");
+        setLoading(false);
+        return;
+      }
+
+      // Show success message and clear form
+      setSuccess(true);
+      setEmail("");
+      setPassword("");
+      setLoading(false);
+    } catch {
+      setError("An unexpected error occurred");
+      setLoading(false);
+    }
   };
 
   return (
@@ -52,6 +83,29 @@ export default function RegisterPage() {
             </div>
 
             <form onSubmit={handleSubmit} className="grid gap-5">
+              {error && (
+                <div className="px-4 py-3 bg-red-500/10 border border-red-500/30 rounded-lg text-sm text-red-400 font-mono">
+                  <span className="text-red-300">Error:</span> {error}
+                </div>
+              )}
+
+              {success && (
+                <div className="px-4 py-3 bg-green-500/10 border border-green-500/30 rounded-lg text-sm font-mono space-y-2">
+                  <p className="text-green-300">
+                    <span className="text-green-400">✓</span> Registration successful!
+                  </p>
+                  <p className="text-foreground/70 text-xs">
+                    <span className="text-yellow-400">⚠</span> Check your email inbox for a confirmation link.
+                  </p>
+                  <p className="text-foreground/50 text-xs">
+                    {`// `}After confirming, you can{" "}
+                    <Link href="/login" className="text-green-400 hover:underline">
+                      login here
+                    </Link>
+                  </p>
+                </div>
+              )}
+
               <div className="grid gap-2">
                 <label htmlFor="email" className="text-sm font-mono text-foreground/70">
                   <span className="text-purple-400">let</span> email = <span className="text-yellow-400">&quot;</span>
@@ -88,9 +142,18 @@ export default function RegisterPage() {
 
               <button
                 type="submit"
-                className="w-full bg-foreground text-background px-4 py-3 rounded-lg font-medium hover:opacity-90 transition mt-2 font-mono"
+                disabled={loading}
+                className="w-full bg-foreground text-background px-4 py-3 rounded-lg font-medium hover:opacity-90 transition mt-2 font-mono disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <span className="text-green-400">→</span> auth.register()
+                {loading ? (
+                  <>
+                    <span className="text-yellow-400">⏳</span> auth.register()...
+                  </>
+                ) : (
+                  <>
+                    <span className="text-green-400">→</span> auth.register()
+                  </>
+                )}
               </button>
             </form>
 
