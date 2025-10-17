@@ -17,6 +17,7 @@ export async function GET(request: NextRequest) {
       const page = parseInt(searchParams.get('page') || '1')
       const limit = parseInt(searchParams.get('limit') || '10')
       const search = searchParams.get('search') || ''
+      const language = searchParams.get('language') || ''
       const favorites = searchParams.get('favorites') === 'true'
 
       const offset = (page - 1) * limit
@@ -34,6 +35,10 @@ export async function GET(request: NextRequest) {
 
       if (search) {
         query = query.or(`title.ilike.%${search}%,code.ilike.%${search}%`)
+      }
+
+      if (language) {
+        query = query.eq('language', language)
       }
 
       const { data, error, count } = await query

@@ -17,6 +17,14 @@ interface Snippet {
   updated_at: string;
 }
 
+const LANGUAGES = [
+  "javascript", "typescript", "python", "java", "csharp", "cpp", "c", "go", "rust",
+  "ruby", "php", "swift", "kotlin", "scala", "dart", "r", "sql", "html", "css",
+  "scss", "sass", "less", "json", "yaml", "xml", "markdown", "bash", "shell",
+  "powershell", "dockerfile", "graphql", "lua", "perl", "elixir", "clojure",
+  "haskell", "ocaml", "fsharp", "vim", "makefile", "toml", "ini", "plaintext", "other"
+];
+
 export default function DashboardPage() {
   const [user, setUser] = useState<{ email: string; id: string } | null>(null);
   const [loading, setLoading] = useState(true);
@@ -28,6 +36,7 @@ export default function DashboardPage() {
   const [loadingSnippets, setLoadingSnippets] = useState(false);
   const [search, setSearch] = useState("");
   const [searchInput, setSearchInput] = useState("");
+  const [selectedLanguage, setSelectedLanguage] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingSnippet, setEditingSnippet] = useState<Snippet | null>(null);
   const router = useRouter();
@@ -53,7 +62,7 @@ export default function DashboardPage() {
   }, [router]);
 
   // Fetch snippets
-  const fetchSnippets = async (pageNum: number, searchQuery: string, append = false) => {
+  const fetchSnippets = async (pageNum: number, searchQuery: string, languageFilter: string, append = false) => {
     if (loadingSnippets) return;
     
     setLoadingSnippets(true);
@@ -65,6 +74,10 @@ export default function DashboardPage() {
       
       if (searchQuery) {
         params.append('search', searchQuery);
+      }
+
+      if (languageFilter) {
+        params.append('language', languageFilter);
       }
 
       const response = await fetch(`/api/snippets?${params}`);
@@ -102,17 +115,17 @@ export default function DashboardPage() {
   // Initial load
   useEffect(() => {
     if (user) {
-      fetchSnippets(1, search);
+      fetchSnippets(1, search, selectedLanguage);
       fetchFavorites();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user, search]);
+  }, [user, search, selectedLanguage]);
 
   // Handle load more
   const handleLoadMore = () => {
     const nextPage = page + 1;
     setPage(nextPage);
-    fetchSnippets(nextPage, search, true);
+    fetchSnippets(nextPage, search, selectedLanguage, true);
   };
 
   // Handle search
@@ -164,7 +177,7 @@ export default function DashboardPage() {
           setIsModalOpen(false);
           setEditingSnippet(null);
           setPage(1);
-          fetchSnippets(1, search);
+          fetchSnippets(1, search, selectedLanguage);
           fetchFavorites();
         }
       } else {
@@ -178,7 +191,7 @@ export default function DashboardPage() {
         if (response.ok) {
           setIsModalOpen(false);
           setPage(1);
-          fetchSnippets(1, search);
+          fetchSnippets(1, search, selectedLanguage);
           fetchFavorites();
         }
       }
@@ -267,7 +280,7 @@ export default function DashboardPage() {
       {/* Main Content */}
       <main className="flex-1 max-w-7xl mx-auto w-full px-6 py-8 space-y-8">
         {/* Search Bar */}
-        <div className="flex gap-2">
+        <div className="flex flex-col sm:flex-row gap-2">
           <input
             type="text"
             placeholder="🔍 Search snippets..."
@@ -276,6 +289,18 @@ export default function DashboardPage() {
             onKeyDown={handleSearchKeyDown}
             className="flex-1 px-4 py-3 bg-black/40 border border-foreground/20 rounded-lg focus:border-foreground/40 focus:outline-none focus:ring-2 focus:ring-foreground/10 transition font-mono text-sm"
           />
+          <select
+            value={selectedLanguage}
+            onChange={(e) => setSelectedLanguage(e.target.value)}
+            className="px-4 py-3 bg-black/40 border border-foreground/20 rounded-lg focus:border-foreground/40 focus:outline-none focus:ring-2 focus:ring-foreground/10 transition font-mono text-sm min-w-[160px]"
+          >
+            <option value="">All Languages</option>
+            {LANGUAGES.map((lang) => (
+              <option key={lang} value={lang}>
+                {lang}
+              </option>
+            ))}
+          </select>
           <button
             onClick={handleSearch}
             className="px-6 py-3 border border-foreground/20 rounded-lg hover:bg-foreground/5 transition font-mono whitespace-nowrap"
