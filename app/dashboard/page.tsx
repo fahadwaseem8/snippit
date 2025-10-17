@@ -4,11 +4,31 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
+import SnippetCard from "../components/SnippetCard";
+import SnippetModal from "../components/SnippetModal";
+
+interface Snippet {
+  id: string;
+  title: string;
+  language: string;
+  code: string;
+  is_favorite: boolean;
+  created_at: string;
+  updated_at: string;
+}
 
 export default function DashboardPage() {
   const [user, setUser] = useState<{ email: string; id: string } | null>(null);
   const [loading, setLoading] = useState(true);
   const [loggingOut, setLoggingOut] = useState(false);
+  const [snippets, setSnippets] = useState<Snippet[]>([]);
+  const [favorites, setFavorites] = useState<Snippet[]>([]);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [loadingSnippets, setLoadingSnippets] = useState(false);
+  const [search, setSearch] = useState("");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingSnippet, setEditingSnippet] = useState<Snippet | null>(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -31,6 +51,77 @@ export default function DashboardPage() {
     checkUser();
   }, [router]);
 
+  // Fetch snippets
+  const fetchSnippets = async (pageNum: number, searchQuery: string, append = false) => {
+    if (loadingSnippets) return;
+    
+    setLoadingSnippets(true);
+    try {
+      const params = new URLSearchParams({
+        page: pageNum.toString(),
+        limit: '10',
+      });
+      
+      if (searchQuery) {
+        params.append('search', searchQuery);
+      }
+
+      const response = await fetch(`/api/snippets?${params}`);
+      const data = await response.json();
+
+      if (response.ok) {
+        if (append) {
+          setSnippets(prev => [...prev, ...data.snippets]);
+        } else {
+          setSnippets(data.snippets);
+        }
+        setHasMore(data.hasMore);
+      }
+    } catch (error) {
+      console.error('Failed to fetch snippets:', error);
+    } finally {
+      setLoadingSnippets(false);
+    }
+  };
+
+  // Fetch favorites
+  const fetchFavorites = async () => {
+    try {
+      const response = await fetch('/api/snippets?favorites=true&limit=5');
+      const data = await response.json();
+
+      if (response.ok) {
+        setFavorites(data.snippets);
+      }
+    } catch (error) {
+      console.error('Failed to fetch favorites:', error);
+    }
+  };
+
+  // Initial load
+  useEffect(() => {
+    if (user) {
+      fetchSnippets(1, search);
+      fetchFavorites();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, search]);
+
+  // Handle load more
+  const handleLoadMore = () => {
+    const nextPage = page + 1;
+    setPage(nextPage);
+    fetchSnippets(nextPage, search, true);
+  };
+
+  // Handle search
+  const handleSearch = (value: string) => {
+    setSearch(value);
+    setPage(1);
+    setHasMore(true);
+  };
+
+  // Handle logout
   const handleLogout = async () => {
     setLoggingOut(true);
     
@@ -50,6 +141,84 @@ export default function DashboardPage() {
     }
   };
 
+  // Handle create/edit snippet
+  const handleSaveSnippet = async (snippetData: { title: string; language: string; code: string; is_favorite: boolean }) => {
+    try {
+      if (editingSnippet) {
+        // Update existing snippet
+        const response = await fetch(`/api/snippets/${editingSnippet.id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(snippetData),
+        });
+
+        if (response.ok) {
+          setIsModalOpen(false);
+          setEditingSnippet(null);
+          setPage(1);
+          fetchSnippets(1, search);
+          fetchFavorites();
+        }
+      } else {
+        // Create new snippet
+        const response = await fetch('/api/snippets', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(snippetData),
+        });
+
+        if (response.ok) {
+          setIsModalOpen(false);
+          setPage(1);
+          fetchSnippets(1, search);
+          fetchFavorites();
+        }
+      }
+    } catch (error) {
+      console.error('Failed to save snippet:', error);
+    }
+  };
+
+  // Handle delete
+  const handleDelete = async (id: string) => {
+    try {
+      const response = await fetch(`/api/snippets/${id}`, {
+        method: 'DELETE',
+      });
+
+      if (response.ok) {
+        setSnippets(prev => prev.filter(s => s.id !== id));
+        setFavorites(prev => prev.filter(s => s.id !== id));
+      }
+    } catch (error) {
+      console.error('Failed to delete snippet:', error);
+    }
+  };
+
+  // Handle toggle favorite
+  const handleToggleFavorite = async (id: string, isFavorite: boolean) => {
+    try {
+      const response = await fetch(`/api/snippets/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ is_favorite: isFavorite }),
+      });
+
+      if (response.ok) {
+        setSnippets(prev => prev.map(s => s.id === id ? { ...s, is_favorite: isFavorite } : s));
+        fetchFavorites();
+      }
+    } catch (error) {
+      console.error('Failed to toggle favorite:', error);
+    }
+  };
+
+  // Handle edit
+  const handleEdit = (snippet: Snippet) => {
+    setEditingSnippet(snippet);
+    setIsModalOpen(true);
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen font-sans flex items-center justify-center p-6">
@@ -63,95 +232,126 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen font-sans flex items-center justify-center p-6 relative">
-      {/* Terminal-style background pattern */}
-      <div className="absolute inset-0 opacity-5">
-        <div className="absolute inset-0 bg-[repeating-linear-gradient(0deg,transparent,transparent_2px,currentColor_2px,currentColor_4px)]"></div>
-      </div>
-
-      <div className="w-full max-w-2xl relative">
-        {/* Logo */}
-        <Link href="/" className="flex items-center justify-center gap-2 text-2xl font-semibold mb-8">
-          <span className="text-3xl">🧷</span>
-          <span>Snippit</span>
-        </Link>
-
-        {/* Terminal-style dashboard card */}
-        <div className="border border-foreground/20 rounded-lg bg-black/60 backdrop-blur-xl shadow-2xl overflow-hidden">
-          {/* Terminal header */}
-          <div className="flex items-center justify-between px-4 py-3 bg-foreground/[0.08] border-b border-foreground/10">
-            <div className="flex items-center gap-2">
-              <div className="flex gap-1.5">
-                <div className="w-3 h-3 rounded-full bg-red-500/80"></div>
-                <div className="w-3 h-3 rounded-full bg-yellow-500/80"></div>
-                <div className="w-3 h-3 rounded-full bg-green-500/80"></div>
-              </div>
-              <span className="font-mono text-xs text-foreground/60 ml-2">~/snippit/dashboard</span>
-            </div>
-            <span className="font-mono text-xs text-foreground/40">⌘ D</span>
+    <div className="min-h-screen font-sans flex flex-col">
+      {/* Header */}
+      <header className="sticky top-0 z-40 backdrop-blur-md bg-background/80 border-b border-foreground/10">
+        <nav className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+          <Link href="/" className="flex items-center gap-2 text-lg font-semibold">
+            <span className="text-2xl">🧷</span>
+            <span>Snippit</span>
+          </Link>
+          
+          <div className="flex items-center gap-4">
+            <span className="text-sm text-foreground/60 font-mono hidden sm:inline">
+              {user.email}
+            </span>
+            <button
+              onClick={handleLogout}
+              disabled={loggingOut}
+              className="text-sm px-4 py-2 border border-foreground/20 rounded-lg hover:bg-foreground/5 transition font-mono disabled:opacity-50"
+            >
+              {loggingOut ? '⏳ Logout...' : '← Logout'}
+            </button>
           </div>
+        </nav>
+      </header>
 
-          {/* Dashboard content */}
-          <div className="p-8">
-            <div className="mb-6">
-              <h1 className="text-3xl font-bold mb-4">Dashboard</h1>
-              <div className="font-mono text-sm space-y-2">
-                <p className="text-foreground/60">
-                  <span className="text-blue-400">const</span> user = {"{"}
-                </p>
-                <p className="text-foreground/80 pl-4">
-                  email: <span className="text-green-400">&quot;{user.email}&quot;</span>,
-                </p>
-                <p className="text-foreground/80 pl-4">
-                  id: <span className="text-yellow-400">&quot;{user.id}&quot;</span>,
-                </p>
-                <p className="text-foreground/80 pl-4">
-                  authenticated: <span className="text-purple-400">true</span>
-                </p>
-                <p className="text-foreground/60">{"}"};</p>
-              </div>
-            </div>
-
-            <div className="border-t border-foreground/10 pt-6 mt-6">
-              <p className="text-sm text-foreground/60 mb-4">
-                <span className="font-mono text-green-400">$</span> Welcome to your snippet workspace!
-              </p>
-              
-              <div className="grid gap-3">
-                <button
-                  onClick={handleLogout}
-                  disabled={loggingOut}
-                  className="w-full bg-red-500/20 border border-red-500/30 text-red-300 px-4 py-3 rounded-lg font-medium hover:bg-red-500/30 transition font-mono disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {loggingOut ? (
-                    <>
-                      <span className="text-yellow-400">⏳</span> auth.logout()...
-                    </>
-                  ) : (
-                    <>
-                      <span>←</span> auth.logout()
-                    </>
-                  )}
-                </button>
-                
-                <Link
-                  href="/"
-                  className="block text-center border border-foreground/20 px-4 py-3 rounded-lg font-medium hover:bg-foreground/5 transition"
-                >
-                  ← Back to Home
-                </Link>
-              </div>
-            </div>
+      {/* Main Content */}
+      <main className="flex-1 max-w-7xl mx-auto w-full px-6 py-8 space-y-8">
+        {/* Search and Create */}
+        <div className="flex flex-col sm:flex-row gap-4">
+          <div className="flex-1">
+            <input
+              type="text"
+              placeholder="🔍 Search snippets..."
+              value={search}
+              onChange={(e) => handleSearch(e.target.value)}
+              className="w-full px-4 py-3 bg-black/40 border border-foreground/20 rounded-lg focus:border-foreground/40 focus:outline-none focus:ring-2 focus:ring-foreground/10 transition font-mono text-sm"
+            />
           </div>
+          <button
+            onClick={() => {
+              setEditingSnippet(null);
+              setIsModalOpen(true);
+            }}
+            className="bg-foreground text-background px-6 py-3 rounded-lg font-medium hover:opacity-90 transition font-mono whitespace-nowrap"
+          >
+            <span className="text-green-400">+</span> New Snippet
+          </button>
         </div>
 
-        {/* CLI-style hint */}
-        <div className="mt-4 text-center">
-          <p className="text-xs text-foreground/40 font-mono">
-            Hi, <span className="text-green-400">{user.email}</span>! 👋
-          </p>
+        {/* Favorites Section */}
+        {favorites.length > 0 && (
+          <div className="space-y-4">
+            <h2 className="text-2xl font-bold flex items-center gap-2">
+              <span>⭐</span> Favorites
+            </h2>
+            <div className="grid gap-4">
+              {favorites.map((snippet) => (
+                <SnippetCard
+                  key={snippet.id}
+                  snippet={snippet}
+                  onDelete={handleDelete}
+                  onToggleFavorite={handleToggleFavorite}
+                  onEdit={handleEdit}
+                />
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* All Snippets */}
+        <div className="space-y-4">
+          <h2 className="text-2xl font-bold">All Snippets</h2>
+          {snippets.length === 0 && !loadingSnippets ? (
+            <div className="text-center py-12 border border-foreground/10 rounded-lg bg-foreground/[0.02]">
+              <p className="text-foreground/60 font-mono mb-4">No snippets yet!</p>
+              <button
+                onClick={() => setIsModalOpen(true)}
+                className="text-sm bg-foreground text-background px-4 py-2 rounded-lg hover:opacity-90 transition font-mono"
+              >
+                Create your first snippet
+              </button>
+            </div>
+          ) : (
+            <div className="grid gap-4">
+              {snippets.map((snippet) => (
+                <SnippetCard
+                  key={snippet.id}
+                  snippet={snippet}
+                  onDelete={handleDelete}
+                  onToggleFavorite={handleToggleFavorite}
+                  onEdit={handleEdit}
+                />
+              ))}
+            </div>
+          )}
+
+          {/* Load More button */}
+          {hasMore && snippets.length > 0 && (
+            <div className="text-center py-4">
+              <button
+                onClick={handleLoadMore}
+                disabled={loadingSnippets}
+                className="px-6 py-3 border border-foreground/20 rounded-lg hover:bg-foreground/5 transition font-mono disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {loadingSnippets ? '⏳ Loading...' : '↓ Load More'}
+              </button>
+            </div>
+          )}
         </div>
-      </div>
+      </main>
+
+      {/* Modal */}
+      <SnippetModal
+        isOpen={isModalOpen}
+        onClose={() => {
+          setIsModalOpen(false);
+          setEditingSnippet(null);
+        }}
+        onSave={handleSaveSnippet}
+        editingSnippet={editingSnippet}
+      />
     </div>
   );
 }
