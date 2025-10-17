@@ -24,7 +24,6 @@ interface LogData {
   response_body?: unknown
   response_status: number
   response_time: number
-  session_id?: string
 }
 
 export async function logRequest(data: LogData) {
@@ -40,7 +39,6 @@ export async function logRequest(data: LogData) {
       response_body: data.response_body,
       response_status: data.response_status,
       response_time: data.response_time,
-      session_id: data.session_id,
     })
 
     if (error) {
@@ -145,10 +143,6 @@ export async function withAPILogging(
 
   const responseTime = Date.now() - startTime
 
-  // Get session ID from cookies if available
-  const sessionCookie = request.cookies.get('sb-access-token')
-  const sessionId = sessionCookie?.value
-
   // Log asynchronously (don't wait)
   logRequest({
     ip_address: ip,
@@ -161,7 +155,6 @@ export async function withAPILogging(
     response_body: responseBody,
     response_status: responseStatus,
     response_time: responseTime,
-    session_id: sessionId,
   }).catch((err) => console.error('Async log error:', err))
 
   return response

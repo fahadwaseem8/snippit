@@ -11,7 +11,6 @@ CREATE TABLE IF NOT EXISTS public.request_logs (
   response_body JSONB,
   response_status INTEGER,
   response_time INTEGER,
-  session_id TEXT,
   created_at TIMESTAMPTZ DEFAULT now()
 );
 
@@ -23,9 +22,6 @@ CREATE INDEX IF NOT EXISTS idx_request_logs_method ON public.request_logs(method
 
 -- Create index on response_status for error tracking
 CREATE INDEX IF NOT EXISTS idx_request_logs_status ON public.request_logs(response_status);
-
--- Create index on session_id for user tracking
-CREATE INDEX IF NOT EXISTS idx_request_logs_session_id ON public.request_logs(session_id);
 
 -- Enable Row Level Security
 ALTER TABLE public.request_logs ENABLE ROW LEVEL SECURITY;
