@@ -333,10 +333,10 @@ export default function DashboardPage() {
           </div>
         )}
 
-        {/* All Snippets */}
+        {/* Snippets */}
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-bold">All Snippets</h2>
+            <h2 className="text-2xl font-bold">Snippets</h2>
             <button
               onClick={() => {
                 setEditingSnippet(null);
@@ -347,19 +347,23 @@ export default function DashboardPage() {
               <span className="text-green-400">+</span> New Snippet
             </button>
           </div>
-          {snippets.length === 0 && !loadingSnippets ? (
+          {snippets.filter(s => !s.is_favorite).length === 0 && !loadingSnippets ? (
             <div className="text-center py-12 border border-foreground/10 rounded-lg bg-foreground/[0.02]">
-              <p className="text-foreground/60 font-mono mb-4">No snippets yet!</p>
-              <button
-                onClick={() => setIsModalOpen(true)}
-                className="text-sm bg-foreground text-background px-4 py-2 rounded-lg hover:opacity-90 transition font-mono"
-              >
-                Create your first snippet
-              </button>
+              <p className="text-foreground/60 font-mono mb-4">
+                {snippets.length === 0 ? 'No snippets yet!' : 'All your snippets are favorites!'}
+              </p>
+              {snippets.length === 0 && (
+                <button
+                  onClick={() => setIsModalOpen(true)}
+                  className="text-sm bg-foreground text-background px-4 py-2 rounded-lg hover:opacity-90 transition font-mono"
+                >
+                  Create your first snippet
+                </button>
+              )}
             </div>
           ) : (
             <div className="grid gap-4">
-              {snippets.map((snippet) => (
+              {snippets.filter(snippet => !snippet.is_favorite).map((snippet) => (
                 <SnippetCard
                   key={snippet.id}
                   snippet={snippet}
