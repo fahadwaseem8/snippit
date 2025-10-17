@@ -284,25 +284,14 @@ export default function DashboardPage() {
           </button>
         </div>
 
-        {/* New Snippet Button - Centered */}
-        <div className="flex justify-center">
-          <button
-            onClick={() => {
-              setEditingSnippet(null);
-              setIsModalOpen(true);
-            }}
-            className="bg-foreground text-background px-8 py-3 rounded-lg font-medium hover:opacity-90 transition font-mono"
-          >
-            <span className="text-green-400">+</span> New Snippet
-          </button>
-        </div>
-
         {/* Favorites Section */}
         {favorites.length > 0 && (
           <div className="space-y-4">
-            <h2 className="text-2xl font-bold flex items-center gap-2">
-              <span>⭐</span> Favorites
-            </h2>
+            <div className="flex items-center justify-between">
+              <h2 className="text-2xl font-bold flex items-center gap-2">
+                <span>⭐</span> Favorites
+              </h2>
+            </div>
             <div className="grid gap-4">
               {favorites.map((snippet) => (
                 <SnippetCard
@@ -319,7 +308,18 @@ export default function DashboardPage() {
 
         {/* All Snippets */}
         <div className="space-y-4">
-          <h2 className="text-2xl font-bold">All Snippets</h2>
+          <div className="flex items-center justify-between">
+            <h2 className="text-2xl font-bold">All Snippets</h2>
+            <button
+              onClick={() => {
+                setEditingSnippet(null);
+                setIsModalOpen(true);
+              }}
+              className="bg-foreground text-background px-6 py-2.5 rounded-lg font-medium hover:opacity-90 transition font-mono text-sm"
+            >
+              <span className="text-green-400">+</span> New Snippet
+            </button>
+          </div>
           {snippets.length === 0 && !loadingSnippets ? (
             <div className="text-center py-12 border border-foreground/10 rounded-lg bg-foreground/[0.02]">
               <p className="text-foreground/60 font-mono mb-4">No snippets yet!</p>
