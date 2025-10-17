@@ -303,9 +303,10 @@ export default function DashboardPage() {
           </select>
           <button
             onClick={handleSearch}
-            className="px-6 py-3 border border-foreground/20 rounded-lg hover:bg-foreground/5 transition font-mono whitespace-nowrap"
+            disabled={loadingSnippets}
+            className="px-6 py-3 border border-foreground/20 rounded-lg hover:bg-foreground/5 transition font-mono whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Search
+            {loadingSnippets ? '⏳ Searching...' : 'Search'}
           </button>
         </div>
 
