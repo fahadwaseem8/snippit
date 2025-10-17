@@ -27,6 +27,7 @@ export default function DashboardPage() {
   const [hasMore, setHasMore] = useState(true);
   const [loadingSnippets, setLoadingSnippets] = useState(false);
   const [search, setSearch] = useState("");
+  const [searchInput, setSearchInput] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingSnippet, setEditingSnippet] = useState<Snippet | null>(null);
   const router = useRouter();
@@ -115,10 +116,17 @@ export default function DashboardPage() {
   };
 
   // Handle search
-  const handleSearch = (value: string) => {
-    setSearch(value);
+  const handleSearch = () => {
+    setSearch(searchInput);
     setPage(1);
     setHasMore(true);
+  };
+
+  // Handle search on Enter key
+  const handleSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      handleSearch();
+    }
   };
 
   // Handle logout
@@ -258,23 +266,32 @@ export default function DashboardPage() {
 
       {/* Main Content */}
       <main className="flex-1 max-w-7xl mx-auto w-full px-6 py-8 space-y-8">
-        {/* Search and Create */}
-        <div className="flex flex-col sm:flex-row gap-4">
-          <div className="flex-1">
-            <input
-              type="text"
-              placeholder="🔍 Search snippets..."
-              value={search}
-              onChange={(e) => handleSearch(e.target.value)}
-              className="w-full px-4 py-3 bg-black/40 border border-foreground/20 rounded-lg focus:border-foreground/40 focus:outline-none focus:ring-2 focus:ring-foreground/10 transition font-mono text-sm"
-            />
-          </div>
+        {/* Search Bar */}
+        <div className="flex gap-2">
+          <input
+            type="text"
+            placeholder="🔍 Search snippets..."
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
+            onKeyDown={handleSearchKeyDown}
+            className="flex-1 px-4 py-3 bg-black/40 border border-foreground/20 rounded-lg focus:border-foreground/40 focus:outline-none focus:ring-2 focus:ring-foreground/10 transition font-mono text-sm"
+          />
+          <button
+            onClick={handleSearch}
+            className="px-6 py-3 border border-foreground/20 rounded-lg hover:bg-foreground/5 transition font-mono whitespace-nowrap"
+          >
+            Search
+          </button>
+        </div>
+
+        {/* New Snippet Button - Centered */}
+        <div className="flex justify-center">
           <button
             onClick={() => {
               setEditingSnippet(null);
               setIsModalOpen(true);
             }}
-            className="bg-foreground text-background px-6 py-3 rounded-lg font-medium hover:opacity-90 transition font-mono whitespace-nowrap"
+            className="bg-foreground text-background px-8 py-3 rounded-lg font-medium hover:opacity-90 transition font-mono"
           >
             <span className="text-green-400">+</span> New Snippet
           </button>
