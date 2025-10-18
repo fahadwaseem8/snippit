@@ -35,26 +35,9 @@ export async function logRequest(data: LogData) {
   try {
     // Validate Supabase client
     if (!supabaseAdmin) {
-      console.error('Supabase client not initialized. Check environment variables:')
-      console.error('NEXT_PUBLIC_SUPABASE_URL:', SUPABASE_URL ? '✓ Set' : '✗ Missing')
-      console.error('SUPABASE_SERVICE_ROLE_KEY:', process.env.SUPABASE_SERVICE_ROLE_KEY ? '✓ Set' : '✗ Missing')
-      console.error('NEXT_PUBLIC_SUPABASE_ANON_KEY:', process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ? '✓ Set' : '✗ Missing')
+      console.error('Supabase client not initialized - missing environment variables')
       return
     }
-
-    console.log('Logging request to Supabase:', {
-      url: data.url,
-      method: data.method,
-      ip: data.ip_address,
-      supabase_url: SUPABASE_URL,
-    })
-
-    console.log('Attempting insert with data:', {
-      ip_address: data.ip_address,
-      user_agent: data.user_agent?.substring(0, 50) + '...',
-      method: data.method,
-      url: data.url,
-    })
 
     const { error } = await supabaseAdmin
       .from('request_logs')
@@ -71,25 +54,11 @@ export async function logRequest(data: LogData) {
         response_time: data.response_time,
       })
 
-    console.log('Insert completed, checking for errors...')
-
     if (error) {
-      console.error('Failed to log request:', {
-        message: error.message,
-        details: error.details,
-        hint: error.hint,
-        code: error.code,
-      })
-    } else {
-      console.log('✓ Successfully logged request to Supabase')
+      console.error('Failed to log request:', error.message)
     }
   } catch (error) {
-    console.error('Exception while logging request:', {
-      error,
-      errorType: typeof error,
-      errorMessage: error instanceof Error ? error.message : String(error),
-      stack: error instanceof Error ? error.stack : undefined,
-    })
+    console.error('Error logging request:', error)
   }
 }
 
