@@ -30,10 +30,17 @@ A modern, developer-focused code snippet manager built with Next.js 15, featurin
 
 ### 🔐 Authentication & Security
 - **Supabase Authentication** - Secure user authentication with email/password
-- **Password Reset Flow** - Email-based password recovery
+- **Password Reset Flow** - Email-based password recovery with branded email templates
 - **Protected Routes** - Middleware-based route protection
 - **Row-Level Security** - Database-level security policies
-- **API Logging** - Request/response logging for debugging and monitoring
+- **Secure API Design** - Auth endpoints never log sensitive data (passwords, tokens)
+- **API Logging** - Request/response logging for non-auth endpoints
+
+### 📊 Analytics & Monitoring
+- **Landing Page Tracking** - Automatic visitor logging with IP, user agent, screen resolution, language, timezone
+- **Health Check API** - Monitor application status and server metrics
+- **Automated Cron Jobs** - Bi-weekly health checks via Vercel Cron (Monday & Friday at 9 AM UTC)
+- **Request Logs Database** - Complete audit trail of API requests and responses
 
 ### 📧 Email Templates
 - **Beautiful Branded Emails** - Custom HTML email templates with terminal aesthetic
@@ -101,13 +108,21 @@ bun install
 
 3. **Set up environment variables**
 
-Create a `.env.local` file in the root directory:
+Create a `.env` file in the root directory (or copy `.env.example`):
 
 ```env
 # Supabase Configuration
 NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
+
+# Cron Job Security (generate a secure random string)
+CRON_SECRET=your-secure-random-secret-here
+```
+
+**Generate a secure CRON_SECRET:**
+```bash
+openssl rand -base64 32
 ```
 
 4. **Run database migrations**
@@ -143,37 +158,59 @@ snippit/
 ├── app/
 │   ├── api/
 │   │   ├── auth/
-│   │   │   ├── login/route.ts          # Login API
-│   │   │   ├── register/route.ts       # Registration API
-│   │   │   ├── logout/route.ts         # Logout API
-│   │   │   └── reset-password/route.ts # Password reset API
+│   │   │   ├── login/route.ts          # Login API (no logging)
+│   │   │   ├── register/route.ts       # Registration API (no logging)
+│   │   │   ├── logout/route.ts         # Logout API (no logging)
+│   │   │   └── reset-password/route.ts # Password reset API (no logging)
+│   │   ├── cron/
+│   │   │   └── health-check/route.ts   # Vercel cron job for health monitoring
+│   │   ├── health/
+│   │   │   └── route.ts                # Health check & visitor tracking API
 │   │   └── snippets/
-│   │       ├── route.ts                # List & create snippets
-│   │       └── [id]/route.ts           # Update & delete snippets
+│   │       ├── route.ts                # List & create snippets (with logging)
+│   │       └── [id]/route.ts           # Update & delete snippets (with logging)
 │   ├── components/
 │   │   ├── Header.tsx                  # Main navigation header
 │   │   ├── Footer.tsx                  # Footer component
 │   │   ├── SnippetCard.tsx             # Snippet display card
 │   │   ├── SnippetModal.tsx            # Create/edit modal
-│   │   └── CopySnippet.tsx             # Demo snippet component
-│   ├── dashboard/page.tsx              # Main dashboard
-│   ├── login/page.tsx                  # Login page
-│   ├── register/page.tsx               # Registration page
+│   │   └── CopySnippet.tsx             # Demo snippet with CodeMirror
+│   ├── dashboard/page.tsx              # Main dashboard (protected route)
+│   ├── login/page.tsx                  # Login page with password visibility toggle
+│   ├── register/page.tsx               # Registration page with password visibility toggle
 │   ├── reset-password/page.tsx         # Password reset page
 │   ├── layout.tsx                      # Root layout
-│   └── page.tsx                        # Landing page
+│   ├── page.tsx                        # Landing page with visitor tracking
+│   └── globals.css                     # Global styles
 ├── lib/
-│   ├── constants.ts                    # Global constants (logo, app name)
+│   ├── constants.ts                    # Global constants (logo, app name, description)
 │   ├── api-logger.ts                   # API logging middleware
-│   ├── codemirror-theme.ts             # Custom CodeMirror theme
+│   ├── codemirror-theme.ts             # Custom dark CodeMirror theme
 │   └── supabase/
 │       ├── client.ts                   # Browser Supabase client
-│       └── server.ts                   # Server Supabase client
+│       └── server.ts                   # Server Supabase client with cookies
 ├── supabase/
-│   ├── migrations/                     # Database migrations
-│   └── email-templates/                # Email templates
-├── middleware.ts                       # Auth & logging middleware
-└── next.config.ts                      # Next.js configuration
+│   ├── migrations/
+│   │   ├── 20250117000000_create_request_logs.sql  # Request logging table
+│   │   └── 20250117000001_create_snippets.sql      # Snippets table with RLS
+│   └── email-templates/
+│       ├── confirm-signup.html         # Email confirmation template
+│       ├── reset-password.html         # Password reset template
+│       ├── invite-user.html            # User invitation template
+│       ├── magic-link.html             # Magic link login template
+│       ├── change-email.html           # Email change confirmation template
+│       ├── reauthentication.html       # Reauthentication template
+│       └── README.md                   # Email templates documentation
+├── public/                             # Static assets
+├── .env                                # Environment variables (local)
+├── .env.example                        # Environment variables template
+├── middleware.ts                       # Auth & route protection middleware
+├── next.config.ts                      # Next.js configuration
+├── vercel.json                         # Vercel cron job configuration
+├── CRON.md                             # Cron jobs documentation
+├── README.md                           # This file
+├── package.json                        # Dependencies and scripts
+└── tsconfig.json                       # TypeScript configuration
 ```
 
 ## 🗄️ Database Schema
@@ -214,15 +251,26 @@ Edit `lib/constants.ts`:
 ```typescript
 export const LOGO_URL = "your-logo-url-here";
 export const APP_NAME = "Your App Name";
+export const APP_DESCRIPTION = "Your app description";
 ```
 
-Also update the logo in email templates (`supabase/email-templates/*.html`).
+The logo is centrally managed and used in:
+- Header component
+- Dashboard page
+- Login page
+- Register page
+- Reset password page
+- All email templates
+
+**Don't forget** to also update the logo URL in `supabase/email-templates/*.html` files.
 
 ### Customizing the Theme
 
-Edit `lib/codemirror-theme.ts` to customize the code editor appearance.
+**CodeMirror Theme**: Edit `lib/codemirror-theme.ts` to customize the code editor appearance.
 
-Modify `app/globals.css` for global styling.
+**Global Styles**: Modify `app/globals.css` for global styling and color schemes.
+
+**Tailwind Config**: Extend Tailwind configuration for custom colors and utilities.
 
 ## 🚢 Deployment
 
@@ -232,11 +280,14 @@ Modify `app/globals.css` for global styling.
 
 1. Push your code to GitHub
 2. Import your repository in Vercel
-3. Add environment variables:
-   - `NEXT_PUBLIC_SUPABASE_URL`
-   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-   - `SUPABASE_SERVICE_ROLE_KEY`
+3. Add environment variables in Vercel project settings:
+   - `NEXT_PUBLIC_SUPABASE_URL` - Your Supabase project URL
+   - `NEXT_PUBLIC_SUPABASE_ANON_KEY` - Your Supabase anon/public key
+   - `SUPABASE_SERVICE_ROLE_KEY` - Your Supabase service role key
+   - `CRON_SECRET` - Secure random string for cron job authentication
 4. Deploy!
+
+**Note**: Vercel will automatically configure the cron job from `vercel.json`.
 
 ### Other Platforms
 
@@ -248,19 +299,78 @@ Snippit can be deployed to any platform that supports Next.js:
 
 ## 📝 API Endpoints
 
-### Authentication
-- `POST /api/auth/login` - User login
-- `POST /api/auth/register` - User registration
-- `POST /api/auth/logout` - User logout
-- `POST /api/auth/reset-password` - Password reset email
+### Authentication (Not Logged)
+- `POST /api/auth/login` - User login with email/password
+- `POST /api/auth/register` - User registration with email confirmation
+- `POST /api/auth/logout` - User logout and session cleanup
+- `POST /api/auth/reset-password` - Send password reset email
 
-### Snippets
-- `GET /api/snippets` - List snippets (with pagination, search, filters)
+### Snippets (With Logging)
+- `GET /api/snippets` - List snippets (with pagination, search, language filters)
 - `POST /api/snippets` - Create new snippet
-- `PATCH /api/snippets/[id]` - Update snippet
+- `PATCH /api/snippets/[id]` - Update existing snippet
 - `DELETE /api/snippets/[id]` - Delete snippet
 
-## 🤝 Contributing
+### Health & Monitoring (With Logging)
+- `GET /api/health` - Simple health check
+- `POST /api/health` - Log visitor details (called automatically on landing page)
+- `GET /api/cron/health-check` - Automated health check (Vercel cron job)
+
+## ⏰ Cron Jobs
+
+Snippit uses Vercel Cron Jobs for automated tasks:
+
+### Health Check Cron
+- **Schedule**: Every Monday and Friday at 9:00 AM UTC
+- **Endpoint**: `/api/cron/health-check`
+- **Purpose**: Automated health monitoring and server metrics logging
+- **Logs**: Server info (Node version, platform, memory, uptime) to `request_logs` table
+
+**Configuration** in `vercel.json`:
+```json
+{
+  "crons": [
+    {
+      "path": "/api/cron/health-check",
+      "schedule": "0 9 * * 1,5"
+    }
+  ]
+}
+```
+
+See [CRON.md](CRON.md) for detailed documentation on testing and deployment.
+
+## � Testing
+
+### Manual Testing
+
+**Test the health check endpoint:**
+```bash
+# PowerShell
+curl http://localhost:3000/api/health
+
+# Or in browser
+http://localhost:3000/api/health
+```
+
+**Test the cron job locally:**
+```bash
+curl http://localhost:3000/api/cron/health-check
+```
+
+**Check logs in Supabase:**
+1. Go to Supabase Dashboard
+2. Navigate to Table Editor → `request_logs`
+3. View all logged requests with IP, user agent, and response data
+
+### Production Testing
+
+**Manually trigger cron job on Vercel:**
+1. Go to Vercel Dashboard → Your Project
+2. Navigate to **Cron Jobs** tab
+3. Click **"Run Now"** button next to health-check cron
+
+## �🤝 Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
 
@@ -269,6 +379,15 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
 4. Push to the branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
+
+## 🔒 Security Features
+
+- ✅ **No Password Logging** - Authentication endpoints never log sensitive data
+- ✅ **HTTP-Only Cookies** - Session tokens stored securely
+- ✅ **Row-Level Security** - Database-level access control
+- ✅ **CRON_SECRET Protection** - Cron jobs require authentication
+- ✅ **Minimal API Responses** - Auth endpoints return only success/error status
+- ✅ **Environment Variables** - All secrets stored in `.env` (not committed)
 
 ## 📄 License
 
