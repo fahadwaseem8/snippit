@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confirm your email change</title>
+</head>
+<body style="margin: 0; padding: 0; font-family: 'Courier New', Courier, monospace; background-color: #0a0a0a; color: #e5e5e5;">
+    <table role="presentation" style="width: 100%; border-collapse: collapse; background-color: #0a0a0a;">
+        <tr>
+            <td align="center" style="padding: 40px 20px;">
+                <table role="presentation" style="max-width: 600px; width: 100%; border-collapse: collapse; background: linear-gradient(135deg, rgba(0,0,0,0.95) 0%, rgba(20,20,20,0.95) 100%); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.5);">
+                    
+                    <!-- Header with terminal-style dots -->
+                    <tr>
+                        <td style="background: linear-gradient(90deg, rgba(255,255,255,0.08) 0%, transparent 100%); border-bottom: 1px solid rgba(255,255,255,0.1); padding: 16px 24px;">
+                            <table role="presentation" style="width: 100%;">
+                                <tr>
+                                    <td>
+                                        <div style="display: inline-block;">
+                                            <span style="display: inline-block; width: 12px; height: 12px; border-radius: 50%; background-color: rgba(239,68,68,0.8); margin-right: 6px;"></span>
+                                            <span style="display: inline-block; width: 12px; height: 12px; border-radius: 50%; background-color: rgba(234,179,8,0.8); margin-right: 6px;"></span>
+                                            <span style="display: inline-block; width: 12px; height: 12px; border-radius: 50%; background-color: rgba(34,197,94,0.8);"></span>
+                                            <span style="font-size: 11px; color: rgba(255,255,255,0.4); margin-left: 12px;">~/snippit/auth/change-email</span>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+
+                    <!-- Logo and Branding -->
+                    <tr>
+                        <td style="padding: 48px 32px 24px; text-align: center;">
+                            <div style="font-size: 64px; margin-bottom: 16px;">📧</div>
+                            <h1 style="margin: 0; font-size: 32px; font-weight: 700; color: #e5e5e5; letter-spacing: -0.5px;">Confirm Email Change</h1>
+                            <p style="margin: 8px 0 0; font-size: 14px; color: rgba(255,255,255,0.5);">Update Your Account Email</p>
+                        </td>
+                    </tr>
+
+                    <!-- Main Content -->
+                    <tr>
+                        <td style="padding: 0 32px 32px;">
+                            <div style="background-color: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 24px;">
+                                <p style="margin: 0 0 16px; font-size: 14px; color: rgba(255,255,255,0.6); line-height: 1.6;">
+                                    <span style="color: #f59e0b;">⚠</span> Email change requested
+                                </p>
+                                <p style="margin: 0 0 8px; font-size: 14px; color: rgba(255,255,255,0.9); line-height: 1.6;">
+                                    You're updating your Snippit account email address:
+                                </p>
+                                
+                                <!-- Email Change Display -->
+                                <div style="background-color: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; padding: 16px; margin: 16px 0 24px;">
+                                    <p style="margin: 0 0 8px; font-size: 12px; color: rgba(255,255,255,0.5);">
+                                        <span style="color: #ef4444;">FROM:</span>
+                                    </p>
+                                    <p style="margin: 0 0 16px; font-size: 14px; color: rgba(239,68,68,0.8); font-weight: 600; word-break: break-all;">
+                                        {{ .Email }}
+                                    </p>
+                                    <p style="margin: 0 0 8px; font-size: 12px; color: rgba(255,255,255,0.5);">
+                                        <span style="color: #22c55e;">TO:</span>
+                                    </p>
+                                    <p style="margin: 0; font-size: 14px; color: rgba(34,197,94,0.9); font-weight: 600; word-break: break-all;">
+                                        {{ .NewEmail }}
+                                    </p>
+                                </div>
+                                
+                                <!-- CTA Button -->
+                                <table role="presentation" style="margin: 0 auto;">
+                                    <tr>
+                                        <td style="text-align: center; padding: 24px 0;">
+                                            <a href="{{ .ConfirmationURL }}" 
+                                               style="display: inline-block; background-color: #e5e5e5; color: #0a0a0a; text-decoration: none; padding: 14px 32px; border-radius: 8px; font-weight: 600; font-size: 14px; transition: opacity 0.2s;">
+                                                <span style="color: #22c55e;">→</span> Confirm Email Change
+                                            </a>
+                                        </td>
+                                    </tr>
+                                </table>
+
+                                <p style="margin: 24px 0 0; font-size: 12px; color: rgba(255,255,255,0.5); line-height: 1.6;">
+                                    <span style="color: #64748b;">// </span>If the button doesn't work, copy and paste this link into your browser:
+                                </p>
+                                <p style="margin: 8px 0 0; font-size: 11px; word-break: break-all; color: rgba(147,197,253,0.8); background-color: rgba(0,0,0,0.3); padding: 12px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.05);">
+                                    {{ .ConfirmationURL }}
+                                </p>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <!-- Security Warning -->
+                    <tr>
+                        <td style="padding: 0 32px 32px;">
+                            <div style="background-color: rgba(239,68,68,0.1); border-left: 3px solid rgba(239,68,68,0.5); padding: 16px; border-radius: 6px;">
+                                <p style="margin: 0; font-size: 12px; color: rgba(255,255,255,0.6); line-height: 1.5;">
+                                    <span style="color: #ef4444; font-weight: 600;">🔒 Important:</span><br>
+                                    • This confirmation was sent to your <strong>new email</strong><br>
+                                    • Click the link to complete the change<br>
+                                    • Your old email remains active until confirmed<br>
+                                    • If you didn't request this, contact support immediately<br>
+                                    • This link expires in 24 hours
+                                </p>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <!-- Footer -->
+                    <tr>
+                        <td style="padding: 24px 32px; border-top: 1px solid rgba(255,255,255,0.1); background-color: rgba(0,0,0,0.3);">
+                            <p style="margin: 0 0 8px; font-size: 11px; color: rgba(255,255,255,0.4); text-align: center; line-height: 1.5;">
+                                This email change confirmation link will expire in 24 hours.
+                            </p>
+                            <p style="margin: 0; font-size: 11px; color: rgba(255,255,255,0.3); text-align: center; line-height: 1.5;">
+                                © {{ now.Year }} Snippit. Built for developers, by developers.
+                            </p>
+                            <p style="margin: 12px 0 0; font-size: 10px; color: rgba(255,255,255,0.3); text-align: center;">
+                                <a href="https://github.com/fahadwaseem8/snippit" style="color: rgba(147,197,253,0.6); text-decoration: none; margin: 0 8px;">GitHub</a> |
+                                <a href="{{ .SiteURL }}" style="color: rgba(147,197,253,0.6); text-decoration: none; margin: 0 8px;">Website</a>
+                            </p>
+                        </td>
+                    </tr>
+                </table>
+
+                <!-- Security Note -->
+                <table role="presentation" style="max-width: 600px; width: 100%; margin-top: 24px;">
+                    <tr>
+                        <td style="padding: 0 20px;">
+                            <p style="margin: 0; font-size: 10px; color: rgba(255,255,255,0.3); text-align: center; line-height: 1.5;">
+                                🛡️ This email was sent because an email change was requested for your Snippit account.<br>
+                                If you didn't request this change, please contact support immediately.
+                            </p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>
