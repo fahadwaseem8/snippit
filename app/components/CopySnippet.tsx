@@ -12,7 +12,7 @@ type CopySnippetProps = {
 };
 
 export default function CopySnippet({
-  code = `// Meet Snippit 🧷 — your snippet sidekick
+  code = `// Meet Snippit — your snippet sidekick
 type Snippet = { id: string; code: string };
 
 const db: Record<string, Snippet> = {};

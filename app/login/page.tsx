@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { LOGO_URL, APP_NAME } from "@/lib/constants";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -92,8 +93,13 @@ export default function LoginPage() {
       <div className="w-full max-w-md relative">
         {/* Logo */}
         <Link href="/" className="flex items-center justify-center gap-2 text-2xl font-semibold mb-8">
-          <span className="text-3xl">🧷</span>
-          <span>Snippit</span>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img 
+            src={LOGO_URL}
+            alt={`${APP_NAME} Logo`}
+            className="w-10 h-10"
+          />
+          <span>{APP_NAME}</span>
         </Link>
 
         {/* Terminal-style auth card */}

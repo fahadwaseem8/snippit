@@ -6,6 +6,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import SnippetCard from "../components/SnippetCard";
 import SnippetModal from "../components/SnippetModal";
+import { LOGO_URL, APP_NAME } from "@/lib/constants";
 
 interface Snippet {
   id: string;
@@ -259,8 +260,13 @@ export default function DashboardPage() {
       <header className="sticky top-0 z-40 backdrop-blur-md bg-background/80 border-b border-foreground/10">
         <nav className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2 text-lg font-semibold">
-            <span className="text-2xl">🧷</span>
-            <span>Snippit</span>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img 
+              src={LOGO_URL}
+              alt={`${APP_NAME} Logo`}
+              className="w-8 h-8"
+            />
+            <span>{APP_NAME}</span>
           </Link>
           
           <div className="flex items-center gap-4">
