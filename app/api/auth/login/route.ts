@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
 
       const supabase = await createClient()
       
-      const { data, error } = await supabase.auth.signInWithPassword({
+      const { error } = await supabase.auth.signInWithPassword({
         email,
         password,
       })
@@ -28,9 +28,11 @@ export async function POST(request: NextRequest) {
         )
       }
 
+      // Only return success status, no user data
+      // Session is automatically set via cookies by Supabase
       return NextResponse.json({
         success: true,
-        user: data.user,
+        message: 'Login successful',
       })
     } catch (error) {
       console.error('Login error:', error)

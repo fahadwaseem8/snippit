@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
 
       const supabase = await createClient()
       
-      const { data, error } = await supabase.auth.signUp({
+      const { error } = await supabase.auth.signUp({
         email,
         password,
       })
@@ -35,10 +35,10 @@ export async function POST(request: NextRequest) {
         )
       }
 
+      // Only return success status, no user data
       return NextResponse.json({
         success: true,
-        user: data.user,
-        message: 'Registration successful',
+        message: 'Registration successful. Please check your email to confirm your account.',
       })
     } catch (error) {
       console.error('Register error:', error)
