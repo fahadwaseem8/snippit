@@ -1,3 +1,16 @@
+-- =====================================================
+-- Migration: Create request_logs table for API logging
+-- =====================================================
+-- This table stores all API request/response logs for monitoring and debugging.
+-- 
+-- IMPORTANT: RLS Policies
+-- - Service role: Full access (for admin/backend operations)
+-- - Anon role: Can INSERT logs (required for API logging from Vercel/production)
+-- - Authenticated: Can READ logs (for dashboard/analytics)
+-- 
+-- Without the anon INSERT policy, API logging will fail silently in production!
+-- =====================================================
+
 -- Create request_logs table for API logging
 CREATE TABLE IF NOT EXISTS public.request_logs (
   id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
@@ -26,26 +39,28 @@ CREATE INDEX IF NOT EXISTS idx_request_logs_status ON public.request_logs(respon
 -- Enable Row Level Security
 ALTER TABLE public.request_logs ENABLE ROW LEVEL SECURITY;
 
--- Create policy to allow service role to insert logs
-CREATE POLICY "Allow service role to insert logs" ON public.request_logs
-  FOR INSERT
+-- Create policy to allow service role full access
+CREATE POLICY "Service role has full access" ON public.request_logs
+  FOR ALL
   TO service_role
+  USING (true)
   WITH CHECK (true);
 
--- Create policy to allow service role to read logs
-CREATE POLICY "Allow service role to read logs" ON public.request_logs
-  FOR SELECT
-  TO service_role
-  USING (true);
-
 -- Create policy to allow anon role to insert logs (for API logging)
-CREATE POLICY "Allow anon to insert logs" ON public.request_logs
+-- This is required for the API logger to work from Vercel/production
+CREATE POLICY "Anon can insert logs" ON public.request_logs
   FOR INSERT
   TO anon
   WITH CHECK (true);
 
--- Create policy to allow authenticated users to read their own logs
-CREATE POLICY "Allow authenticated to read logs" ON public.request_logs
+-- Create policy to allow authenticated users to read logs
+CREATE POLICY "Authenticated users can read logs" ON public.request_logs
   FOR SELECT
   TO authenticated
   USING (true);
+
+-- Optional: Create policy to allow public read access (comment out if not needed)
+-- CREATE POLICY "Public read access" ON public.request_logs
+--   FOR SELECT
+--   TO public
+--   USING (true);
