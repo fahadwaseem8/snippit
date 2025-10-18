@@ -37,3 +37,15 @@ CREATE POLICY "Allow service role to read logs" ON public.request_logs
   FOR SELECT
   TO service_role
   USING (true);
+
+-- Create policy to allow anon role to insert logs (for API logging)
+CREATE POLICY "Allow anon to insert logs" ON public.request_logs
+  FOR INSERT
+  TO anon
+  WITH CHECK (true);
+
+-- Create policy to allow authenticated users to read their own logs
+CREATE POLICY "Allow authenticated to read logs" ON public.request_logs
+  FOR SELECT
+  TO authenticated
+  USING (true);

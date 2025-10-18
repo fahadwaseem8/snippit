@@ -49,6 +49,13 @@ export async function logRequest(data: LogData) {
       supabase_url: SUPABASE_URL,
     })
 
+    console.log('Attempting insert with data:', {
+      ip_address: data.ip_address,
+      user_agent: data.user_agent?.substring(0, 50) + '...',
+      method: data.method,
+      url: data.url,
+    })
+
     const { error } = await supabaseAdmin
       .from('request_logs')
       .insert({
@@ -63,6 +70,8 @@ export async function logRequest(data: LogData) {
         response_status: data.response_status,
         response_time: data.response_time,
       })
+
+    console.log('Insert completed, checking for errors...')
 
     if (error) {
       console.error('Failed to log request:', {

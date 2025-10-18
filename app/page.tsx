@@ -11,18 +11,7 @@ export default function Home() {
     const logVisit = async () => {
       try {
         await fetch('/api/health', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            page: '/',
-            referrer: document.referrer || 'direct',
-            screen_resolution: `${window.screen.width}x${window.screen.height}`,
-            language: navigator.language,
-            timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-            platform: navigator.platform,
-          }),
+          method: 'GET',
         })
       } catch (error) {
         // Silently fail - don't interrupt user experience
