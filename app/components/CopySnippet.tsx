@@ -1,6 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import CodeMirror from "@uiw/react-codemirror";
+import { javascript } from "@codemirror/lang-javascript";
+import { snippitTheme } from "@/lib/codemirror-theme";
+import { EditorView } from "@codemirror/view";
 
 type CopySnippetProps = {
   code?: string;
@@ -71,9 +75,22 @@ copy('hello-world');
           )}
         </button>
       </div>
-      <pre className="m-0 p-5 overflow-auto text-sm leading-relaxed bg-black/20">
-        <code className="font-mono whitespace-pre text-foreground/95">{code}</code>
-      </pre>
+      <div className="overflow-x-auto">
+        <CodeMirror
+          value={code}
+          height="auto"
+          extensions={[javascript({ typescript: true }), EditorView.lineWrapping]}
+          theme={snippitTheme}
+          editable={false}
+          basicSetup={{
+            lineNumbers: true,
+            foldGutter: false,
+            highlightActiveLineGutter: false,
+            highlightActiveLine: false,
+          }}
+          className="text-sm"
+        />
+      </div>
     </div>
   );
 }

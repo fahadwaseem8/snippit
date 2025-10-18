@@ -9,6 +9,11 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showResetModal, setShowResetModal] = useState(false);
+  const [resetEmail, setResetEmail] = useState("");
+  const [resetLoading, setResetLoading] = useState(false);
+  const [resetSuccess, setResetSuccess] = useState(false);
+  const [resetError, setResetError] = useState("");
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -36,9 +41,43 @@ export default function LoginPage() {
       // Redirect to dashboard on success
       router.push("/dashboard");
       router.refresh();
-    } catch (err) {
+    } catch {
       setError("An unexpected error occurred");
       setLoading(false);
+    }
+  };
+
+  const handleResetPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setResetError("");
+    setResetLoading(true);
+
+    try {
+      const response = await fetch("/api/auth/reset-password", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email: resetEmail }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setResetError(data.error || "Failed to send reset email");
+        setResetLoading(false);
+        return;
+      }
+
+      setResetSuccess(true);
+      setTimeout(() => {
+        setShowResetModal(false);
+        setResetSuccess(false);
+        setResetEmail("");
+      }, 3000);
+    } catch {
+      setResetError("An unexpected error occurred");
+      setResetLoading(false);
     }
   };
 
@@ -115,6 +154,15 @@ export default function LoginPage() {
                   required
                   className="w-full px-4 py-3 bg-black/40 border border-foreground/20 rounded-lg focus:border-foreground/40 focus:outline-none focus:ring-2 focus:ring-foreground/10 transition font-mono text-sm placeholder:text-foreground/30"
                 />
+                <div className="text-right mt-1">
+                  <button
+                    type="button"
+                    onClick={() => setShowResetModal(true)}
+                    className="text-xs text-foreground/60 hover:text-foreground transition font-mono"
+                  >
+                    Forgot password?
+                  </button>
+                </div>
               </div>
 
               <button
@@ -152,6 +200,98 @@ export default function LoginPage() {
           </p>
         </div>
       </div>
+
+      {/* Password Reset Modal */}
+      {showResetModal && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-6 z-50">
+          <div className="w-full max-w-md">
+            <div className="border border-foreground/20 rounded-lg bg-black/90 backdrop-blur-xl shadow-2xl overflow-hidden">
+              {/* Terminal header */}
+              <div className="flex items-center justify-between px-4 py-3 bg-foreground/[0.08] border-b border-foreground/10">
+                <div className="flex items-center gap-2">
+                  <div className="flex gap-1.5">
+                    <div className="w-3 h-3 rounded-full bg-red-500/80"></div>
+                    <div className="w-3 h-3 rounded-full bg-yellow-500/80"></div>
+                    <div className="w-3 h-3 rounded-full bg-green-500/80"></div>
+                  </div>
+                  <span className="font-mono text-xs text-foreground/60 ml-2">~/snippit/auth/reset</span>
+                </div>
+                <button
+                  onClick={() => {
+                    setShowResetModal(false);
+                    setResetError("");
+                    setResetEmail("");
+                  }}
+                  className="text-foreground/60 hover:text-foreground transition"
+                >
+                  ✕
+                </button>
+              </div>
+
+              {/* Modal content */}
+              <div className="p-8">
+                {resetSuccess ? (
+                  <div className="text-center">
+                    <div className="text-5xl mb-4">✅</div>
+                    <h2 className="text-xl font-bold mb-2 text-green-400">Check your email!</h2>
+                    <p className="text-sm text-foreground/70">
+                      We&apos;ve sent you a password reset link.
+                    </p>
+                  </div>
+                ) : (
+                  <>
+                    <div className="mb-6">
+                      <h2 className="text-xl font-bold mb-2">Reset Password</h2>
+                      <p className="text-sm text-foreground/60">
+                        <span className="font-mono text-green-400">$</span> Enter your email to receive a reset link
+                      </p>
+                    </div>
+
+                    <form onSubmit={handleResetPassword} className="grid gap-5">
+                      {resetError && (
+                        <div className="px-4 py-3 bg-red-500/10 border border-red-500/30 rounded-lg text-sm text-red-400 font-mono">
+                          <span className="text-red-300">Error:</span> {resetError}
+                        </div>
+                      )}
+
+                      <div className="grid gap-2">
+                        <label htmlFor="resetEmail" className="text-sm font-mono text-foreground/70">
+                          <span className="text-blue-400">const</span> email = <span className="text-yellow-400">&quot;</span>
+                        </label>
+                        <input
+                          id="resetEmail"
+                          type="email"
+                          value={resetEmail}
+                          onChange={(e) => setResetEmail(e.target.value)}
+                          placeholder="you@example.com"
+                          required
+                          className="w-full px-4 py-3 bg-black/40 border border-foreground/20 rounded-lg focus:border-foreground/40 focus:outline-none focus:ring-2 focus:ring-foreground/10 transition font-mono text-sm placeholder:text-foreground/30"
+                        />
+                      </div>
+
+                      <button
+                        type="submit"
+                        disabled={resetLoading}
+                        className="w-full bg-foreground text-background px-4 py-3 rounded-lg font-medium hover:opacity-90 transition font-mono disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {resetLoading ? (
+                          <>
+                            <span className="text-yellow-400">⏳</span> Sending...
+                          </>
+                        ) : (
+                          <>
+                            <span className="text-green-400">→</span> Send Reset Link
+                          </>
+                        )}
+                      </button>
+                    </form>
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -78,12 +78,14 @@ export default function SnippetCard({
   onEdit,
 }: SnippetCardProps) {
   const [copied, setCopied] = useState(false);
+  const [showMenu, setShowMenu] = useState(false);
 
   const handleCopy = async () => {
     try {
       await navigator.clipboard.writeText(snippet.code);
       setCopied(true);
       setTimeout(() => setCopied(false), 1500);
+      setShowMenu(false);
     } catch (error) {
       console.error("Copy failed", error);
     }
@@ -98,7 +100,7 @@ export default function SnippetCard({
   };
 
   return (
-    <div className="border border-foreground/20 rounded-lg bg-black/40 backdrop-blur-sm hover:border-foreground/30 transition-all">
+    <div className="border border-foreground/20 rounded-lg bg-black/40 backdrop-blur-sm hover:border-foreground/30 transition-all overflow-hidden">
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-foreground/10 bg-foreground/[0.04]">
         <div className="flex items-center gap-3 flex-1 min-w-0">
@@ -116,16 +118,18 @@ export default function SnippetCard({
             </p>
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        
+        {/* Desktop Actions */}
+        <div className="hidden md:flex items-center gap-2">
           <button
             onClick={handleCopy}
-            className="px-3 py-1.5 text-xs font-mono border border-foreground/20 rounded hover:bg-foreground/5 transition"
+            className="px-3 py-1.5 text-xs font-mono border border-foreground/20 rounded hover:bg-foreground/5 transition whitespace-nowrap"
           >
             {copied ? "✓ Copied" : "📋 Copy"}
           </button>
           <button
             onClick={() => onEdit(snippet)}
-            className="px-3 py-1.5 text-xs font-mono border border-foreground/20 rounded hover:bg-foreground/5 transition"
+            className="px-3 py-1.5 text-xs font-mono border border-foreground/20 rounded hover:bg-foreground/5 transition whitespace-nowrap"
           >
             ✏️ Edit
           </button>
@@ -135,15 +139,66 @@ export default function SnippetCard({
                 onDelete(snippet.id);
               }
             }}
-            className="px-3 py-1.5 text-xs font-mono border border-red-500/30 text-red-400 rounded hover:bg-red-500/10 transition"
+            className="px-3 py-1.5 text-xs font-mono border border-red-500/30 text-red-400 rounded hover:bg-red-500/10 transition whitespace-nowrap"
           >
             🗑️ Delete
           </button>
         </div>
+
+        {/* Mobile Menu Button */}
+        <div className="md:hidden relative">
+          <button
+            onClick={() => setShowMenu(!showMenu)}
+            className="px-3 py-1.5 text-xs font-mono border border-foreground/20 rounded hover:bg-foreground/5 transition"
+            aria-label="More actions"
+          >
+            ⋮
+          </button>
+          
+          {showMenu && (
+            <>
+              {/* Backdrop to close menu */}
+              <div 
+                className="fixed inset-0 z-10" 
+                onClick={() => setShowMenu(false)}
+              />
+              
+              {/* Dropdown Menu */}
+              <div className="absolute right-0 top-full mt-1 z-20 bg-black/90 border border-foreground/20 rounded-lg shadow-xl overflow-hidden min-w-[140px]">
+                <button
+                  onClick={handleCopy}
+                  className="w-full px-4 py-2.5 text-left text-sm font-mono hover:bg-foreground/5 transition flex items-center gap-2"
+                >
+                  <span>📋</span> {copied ? "Copied!" : "Copy"}
+                </button>
+                <button
+                  onClick={() => {
+                    onEdit(snippet);
+                    setShowMenu(false);
+                  }}
+                  className="w-full px-4 py-2.5 text-left text-sm font-mono hover:bg-foreground/5 transition border-t border-foreground/10 flex items-center gap-2"
+                >
+                  <span>✏️</span> Edit
+                </button>
+                <button
+                  onClick={() => {
+                    setShowMenu(false);
+                    if (confirm(`Delete "${snippet.title}"?`)) {
+                      onDelete(snippet.id);
+                    }
+                  }}
+                  className="w-full px-4 py-2.5 text-left text-sm font-mono text-red-400 hover:bg-red-500/10 transition border-t border-foreground/10 flex items-center gap-2"
+                >
+                  <span>🗑️</span> Delete
+                </button>
+              </div>
+            </>
+          )}
+        </div>
       </div>
 
       {/* Code preview */}
-      <div className="overflow-hidden">
+      <div className="overflow-x-auto overflow-y-hidden max-w-full">
         <CodeMirror
           value={snippet.code}
           theme={snippitTheme}
@@ -151,6 +206,7 @@ export default function SnippetCard({
           editable={false}
           readOnly={true}
           maxHeight="200px"
+          className="text-sm"
           basicSetup={{
             lineNumbers: true,
             highlightActiveLineGutter: false,
