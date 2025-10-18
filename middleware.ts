@@ -39,7 +39,12 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(url)
   }
 
-  // Redirect authenticated users away from auth pages
+  // Allow access to reset-password page regardless of auth state
+  if (request.nextUrl.pathname.startsWith('/reset-password')) {
+    return supabaseResponse
+  }
+
+  // Redirect authenticated users away from auth pages (but not reset-password)
   if ((request.nextUrl.pathname.startsWith('/login') || request.nextUrl.pathname.startsWith('/register')) && user) {
     const url = request.nextUrl.clone()
     url.pathname = '/dashboard'
