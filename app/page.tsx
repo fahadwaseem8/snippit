@@ -1,8 +1,38 @@
+'use client'
+
+import { useEffect } from "react";
 import CopySnippet from "./components/CopySnippet";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 
 export default function Home() {
+  useEffect(() => {
+    // Log landing page visit
+    const logVisit = async () => {
+      try {
+        await fetch('/api/health', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            page: '/',
+            referrer: document.referrer || 'direct',
+            screen_resolution: `${window.screen.width}x${window.screen.height}`,
+            language: navigator.language,
+            timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+            platform: navigator.platform,
+          }),
+        })
+      } catch (error) {
+        // Silently fail - don't interrupt user experience
+        console.error('Failed to log visit:', error)
+      }
+    }
+
+    logVisit()
+  }, [])
+
   return (
     <div className="min-h-screen font-sans flex flex-col">
       <Header />
