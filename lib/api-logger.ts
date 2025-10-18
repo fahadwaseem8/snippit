@@ -1,17 +1,22 @@
 import { createClient } from '@supabase/supabase-js'
 import { NextRequest, NextResponse } from 'next/server'
 
-// Create a Supabase client with service role key for logging
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-  {
-    auth: {
-      autoRefreshToken: false,
-      persistSession: false,
-    },
-  }
-)
+// Validate environment variables
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL
+const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+
+// Only create client if we have valid credentials
+const supabaseAdmin = SUPABASE_URL && SUPABASE_KEY 
+  ? createClient(SUPABASE_URL, SUPABASE_KEY, {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false,
+      },
+      global: {
+        fetch: fetch.bind(globalThis), // Ensure proper fetch binding
+      },
+    })
+  : null
 
 interface LogData {
   ip_address: string
@@ -28,24 +33,54 @@ interface LogData {
 
 export async function logRequest(data: LogData) {
   try {
-    const { error } = await supabaseAdmin.from('request_logs').insert({
-      ip_address: data.ip_address,
-      user_agent: data.user_agent,
-      method: data.method,
+    // Validate Supabase client
+    if (!supabaseAdmin) {
+      console.error('Supabase client not initialized. Check environment variables:')
+      console.error('NEXT_PUBLIC_SUPABASE_URL:', SUPABASE_URL ? '✓ Set' : '✗ Missing')
+      console.error('SUPABASE_SERVICE_ROLE_KEY:', process.env.SUPABASE_SERVICE_ROLE_KEY ? '✓ Set' : '✗ Missing')
+      console.error('NEXT_PUBLIC_SUPABASE_ANON_KEY:', process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ? '✓ Set' : '✗ Missing')
+      return
+    }
+
+    console.log('Logging request to Supabase:', {
       url: data.url,
-      headers: data.headers,
-      query_params: data.query_params,
-      body: data.body,
-      response_body: data.response_body,
-      response_status: data.response_status,
-      response_time: data.response_time,
+      method: data.method,
+      ip: data.ip_address,
+      supabase_url: SUPABASE_URL,
     })
 
+    const { error } = await supabaseAdmin
+      .from('request_logs')
+      .insert({
+        ip_address: data.ip_address,
+        user_agent: data.user_agent,
+        method: data.method,
+        url: data.url,
+        headers: data.headers,
+        query_params: data.query_params,
+        body: data.body,
+        response_body: data.response_body,
+        response_status: data.response_status,
+        response_time: data.response_time,
+      })
+
     if (error) {
-      console.error('Failed to log request:', error)
+      console.error('Failed to log request:', {
+        message: error.message,
+        details: error.details,
+        hint: error.hint,
+        code: error.code,
+      })
+    } else {
+      console.log('✓ Successfully logged request to Supabase')
     }
   } catch (error) {
-    console.error('Error logging request:', error)
+    console.error('Exception while logging request:', {
+      error,
+      errorType: typeof error,
+      errorMessage: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined,
+    })
   }
 }
 
