@@ -11,9 +11,8 @@ export async function GET(request: NextRequest) {
     // - Timestamp
     
     return NextResponse.json({
-      status: 'healthy',
+      status: 'ok',
       timestamp: new Date().toISOString(),
-      service: 'Snippit API',
     })
   })
 }
