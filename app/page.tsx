@@ -92,7 +92,7 @@ export default function Home() {
               <div className="text-3xl mb-4">🔒</div>
               <h3 className="text-xl font-semibold mb-2">Private & Secure</h3>
               <p className="text-foreground/60 text-sm leading-relaxed">
-                Your snippets are encrypted and private by default. Share selectively.
+                Your snippets are private by default. They are only accessible to you.
               </p>
             </div>
 
@@ -111,28 +111,6 @@ export default function Home() {
                 Access your snippets from any device. CLI, web, and mobile coming soon.
               </p>
             </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Demo Section */}
-      <section id="demo" className="py-20 px-6 border-t border-foreground/10 bg-foreground/[0.02]">
-        <div className="max-w-4xl mx-auto grid gap-8">
-          <div className="text-center grid gap-4">
-            <h2 className="text-3xl sm:text-4xl font-bold tracking-tight">
-              See it in action
-            </h2>
-            <p className="text-foreground/60">
-              This snippet is fully interactive. Click the copy button and paste it anywhere.
-            </p>
-          </div>
-
-          <CopySnippet />
-
-          <div className="text-center">
-            <p className="text-sm text-foreground/50 font-mono">
-              → Try pasting into your editor. Magic, right?
-            </p>
           </div>
         </div>
       </section>
