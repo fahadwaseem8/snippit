@@ -1,121 +1,249 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Your Snippit Magic Link</title>
-</head>
-<body style="margin: 0; padding: 0; font-family: 'Courier New', Courier, monospace; background-color: #0a0a0a; color: #e5e5e5;">
-    <table role="presentation" style="width: 100%; border-collapse: collapse; background-color: #0a0a0a;">
-        <tr>
-            <td align="center" style="padding: 40px 20px;">
-                <table role="presentation" style="max-width: 600px; width: 100%; border-collapse: collapse; background: linear-gradient(135deg, rgba(0,0,0,0.95) 0%, rgba(20,20,20,0.95) 100%); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.5);">
-                    
-                    <!-- Header with terminal-style dots -->
-                    <tr>
-                        <td style="background: linear-gradient(90deg, rgba(255,255,255,0.08) 0%, transparent 100%); border-bottom: 1px solid rgba(255,255,255,0.1); padding: 16px 24px;">
-                            <table role="presentation" style="width: 100%;">
-                                <tr>
-                                    <td>
-                                        <div style="display: inline-block;">
-                                            <span style="display: inline-block; width: 12px; height: 12px; border-radius: 50%; background-color: rgba(239,68,68,0.8); margin-right: 6px;"></span>
-                                            <span style="display: inline-block; width: 12px; height: 12px; border-radius: 50%; background-color: rgba(234,179,8,0.8); margin-right: 6px;"></span>
-                                            <span style="display: inline-block; width: 12px; height: 12px; border-radius: 50%; background-color: rgba(34,197,94,0.8);"></span>
-                                            <span style="font-size: 11px; color: rgba(255,255,255,0.4); margin-left: 12px;">~/snippit/auth/magic-link</span>
-                                        </div>
-                                    </td>
-                                </tr>
-                            </table>
-                        </td>
-                    </tr>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Your magic link</title>
+  </head>
+  <body
+    style="
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+        'Helvetica Neue', Arial, sans-serif;
+      background-color: #f5f5f5;
+    "
+  >
+    <table
+      role="presentation"
+      style="width: 100%; border-collapse: collapse; background-color: #f5f5f5"
+    >
+      <tr>
+        <td align="center" style="padding: 40px 20px">
+          <table
+            role="presentation"
+            style="
+              max-width: 600px;
+              width: 100%;
+              border-collapse: collapse;
+              background-color: #ffffff;
+              border-radius: 8px;
+              overflow: hidden;
+              box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            "
+          >
+            <!-- Logo and Branding -->
+            <tr>
+              <td
+                style="
+                  padding: 48px 32px 24px;
+                  text-align: center;
+                  background-color: #4f46e5;
+                "
+              >
+                <img
+                  src="https://cdn-icons-png.flaticon.com/512/10700/10700708.png"
+                  alt="Snippit Logo"
+                  width="64"
+                  height="64"
+                  style="display: block; margin: 0 auto 16px"
+                />
+                <h1
+                  style="
+                    margin: 0;
+                    font-size: 28px;
+                    font-weight: 600;
+                    color: #ffffff;
+                  "
+                >
+                  Your Magic Link
+                </h1>
+                <p
+                  style="
+                    margin: 8px 0 0;
+                    font-size: 14px;
+                    color: rgba(255, 255, 255, 0.9);
+                  "
+                >
+                  Sign in without a password
+                </p>
+              </td>
+            </tr>
 
-                    <!-- Logo and Branding -->
-                    <tr>
-                        <td style="padding: 48px 32px 24px; text-align: center;">
-                            <div style="font-size: 64px; margin-bottom: 16px;">✨</div>
-                            <h1 style="margin: 0; font-size: 32px; font-weight: 700; color: #e5e5e5; letter-spacing: -0.5px;">Magic Link Login</h1>
-                            <p style="margin: 8px 0 0; font-size: 14px; color: rgba(255,255,255,0.5);">Passwordless Sign In</p>
-                        </td>
-                    </tr>
+            <!-- Main Content -->
+            <tr>
+              <td style="padding: 32px">
+                <p
+                  style="
+                    margin: 0 0 24px;
+                    font-size: 16px;
+                    color: #374151;
+                    line-height: 1.6;
+                  "
+                >
+                  Click the button below to sign in to your Snippit account. No
+                  password required!
+                </p>
 
-                    <!-- Main Content -->
-                    <tr>
-                        <td style="padding: 0 32px 32px;">
-                            <div style="background-color: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 24px;">
-                                <p style="margin: 0 0 16px; font-size: 14px; color: rgba(255,255,255,0.6); line-height: 1.6;">
-                                    <span style="color: #a855f7;">✨</span> Quick login requested
-                                </p>
-                                <p style="margin: 0 0 24px; font-size: 14px; color: rgba(255,255,255,0.9); line-height: 1.6;">
-                                    Click the magic link below to instantly sign in to your Snippit account. No password needed!
-                                </p>
-                                
-                                <!-- CTA Button -->
-                                <table role="presentation" style="margin: 0 auto;">
-                                    <tr>
-                                        <td style="text-align: center; padding: 24px 0;">
-                                            <a href="{{ .ConfirmationURL }}" 
-                                               style="display: inline-block; background-color: #e5e5e5; color: #0a0a0a; text-decoration: none; padding: 14px 32px; border-radius: 8px; font-weight: 600; font-size: 14px; transition: opacity 0.2s;">
-                                                <span style="color: #a855f7;">✨</span> Log In to Snippit
-                                            </a>
-                                        </td>
-                                    </tr>
-                                </table>
-
-                                <p style="margin: 24px 0 0; font-size: 12px; color: rgba(255,255,255,0.5); line-height: 1.6;">
-                                    <span style="color: #64748b;">// </span>If the button doesn't work, copy and paste this link into your browser:
-                                </p>
-                                <p style="margin: 8px 0 0; font-size: 11px; word-break: break-all; color: rgba(147,197,253,0.8); background-color: rgba(0,0,0,0.3); padding: 12px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.05);">
-                                    {{ .ConfirmationURL }}
-                                </p>
-                            </div>
-                        </td>
-                    </tr>
-
-                    <!-- Security Info -->
-                    <tr>
-                        <td style="padding: 0 32px 32px;">
-                            <div style="background-color: rgba(59,130,246,0.1); border-left: 3px solid rgba(59,130,246,0.5); padding: 16px; border-radius: 6px;">
-                                <p style="margin: 0; font-size: 12px; color: rgba(255,255,255,0.6); line-height: 1.5;">
-                                    <span style="color: #3b82f6; font-weight: 600;">🔒 Security Info:</span><br>
-                                    • This link expires in 60 minutes<br>
-                                    • Only works once - can't be reused<br>
-                                    • Don't share this link with anyone<br>
-                                    • If you didn't request this, ignore this email
-                                </p>
-                            </div>
-                        </td>
-                    </tr>
-
-                    <!-- Footer -->
-                    <tr>
-                        <td style="padding: 24px 32px; border-top: 1px solid rgba(255,255,255,0.1); background-color: rgba(0,0,0,0.3);">
-                            <p style="margin: 0 0 8px; font-size: 11px; color: rgba(255,255,255,0.4); text-align: center; line-height: 1.5;">
-                                This magic link will expire in 60 minutes for security reasons.
-                            </p>
-                            <p style="margin: 0; font-size: 11px; color: rgba(255,255,255,0.3); text-align: center; line-height: 1.5;">
-                                © {{ now.Year }} Snippit. Built for developers, by developers.
-                            </p>
-                            <p style="margin: 12px 0 0; font-size: 10px; color: rgba(255,255,255,0.3); text-align: center;">
-                                <a href="https://github.com/fahadwaseem8/snippit" style="color: rgba(147,197,253,0.6); text-decoration: none; margin: 0 8px;">GitHub</a> |
-                                <a href="{{ .SiteURL }}" style="color: rgba(147,197,253,0.6); text-decoration: none; margin: 0 8px;">Website</a>
-                            </p>
-                        </td>
-                    </tr>
+                <!-- CTA Button -->
+                <table role="presentation" style="margin: 24px 0">
+                  <tr>
+                    <td style="text-align: center">
+                      <a
+                        href="{{ .ConfirmationURL }}"
+                        style="
+                          display: inline-block;
+                          background-color: #4f46e5;
+                          color: #ffffff;
+                          text-decoration: none;
+                          padding: 14px 32px;
+                          border-radius: 6px;
+                          font-weight: 600;
+                          font-size: 15px;
+                        "
+                      >
+                        Sign In to Snippit
+                      </a>
+                    </td>
+                  </tr>
                 </table>
 
-                <!-- Security Note -->
-                <table role="presentation" style="max-width: 600px; width: 100%; margin-top: 24px;">
-                    <tr>
-                        <td style="padding: 0 20px;">
-                            <p style="margin: 0; font-size: 10px; color: rgba(255,255,255,0.3); text-align: center; line-height: 1.5;">
-                                🔐 This email was sent because a magic link login was requested for your Snippit account.<br>
-                                If you didn't request this, you can safely ignore this email.
-                            </p>
-                        </td>
-                    </tr>
-                </table>
-            </td>
-        </tr>
+                <p
+                  style="
+                    margin: 24px 0 8px;
+                    font-size: 13px;
+                    color: #6b7280;
+                    line-height: 1.6;
+                  "
+                >
+                  If the button doesn't work, copy and paste this link into your
+                  browser:
+                </p>
+                <p
+                  style="
+                    margin: 0;
+                    font-size: 12px;
+                    word-break: break-all;
+                    color: #4f46e5;
+                    background-color: #f9fafb;
+                    padding: 12px;
+                    border-radius: 6px;
+                    border: 1px solid #e5e7eb;
+                  "
+                >
+                  {{ .ConfirmationURL }}
+                </p>
+              </td>
+            </tr>
+
+            <!-- Security Warning -->
+            <tr>
+              <td style="padding: 0 32px 32px">
+                <div
+                  style="
+                    background-color: #fef2f2;
+                    border-left: 4px solid #ef4444;
+                    padding: 16px;
+                    border-radius: 4px;
+                  "
+                >
+                  <p
+                    style="
+                      margin: 0;
+                      font-size: 13px;
+                      color: #374151;
+                      line-height: 1.6;
+                    "
+                  >
+                    <strong style="color: #ef4444">⚠️ Important:</strong><br />
+                    • This link will expire in 60 minutes<br />
+                    • If you didn't request this, you can safely ignore this email<br />
+                    • Never share this link with anyone
+                  </p>
+                </div>
+              </td>
+            </tr>
+
+            <!-- Footer -->
+            <tr>
+              <td
+                style="
+                  padding: 24px 32px;
+                  border-top: 1px solid #e5e7eb;
+                  background-color: #f9fafb;
+                "
+              >
+                <p
+                  style="
+                    margin: 0 0 8px;
+                    font-size: 13px;
+                    color: #6b7280;
+                    text-align: center;
+                    line-height: 1.5;
+                  "
+                >
+                  This magic link will expire in 60 minutes.
+                </p>
+                <p
+                  style="
+                    margin: 0;
+                    font-size: 13px;
+                    color: #9ca3af;
+                    text-align: center;
+                    line-height: 1.5;
+                  "
+                >
+                  © Snippit. Built for developers, by developers.
+                </p>
+                <p
+                  style="
+                    margin: 12px 0 0;
+                    font-size: 12px;
+                    color: #9ca3af;
+                    text-align: center;
+                  "
+                >
+                  <a
+                    href="https://github.com/fahadwaseem8/snippit"
+                    style="color: #4f46e5; text-decoration: none; margin: 0 8px"
+                    >GitHub</a
+                  >
+                  |
+                  <a
+                    href="{{ .SiteURL }}"
+                    style="color: #4f46e5; text-decoration: none; margin: 0 8px"
+                    >Website</a
+                  >
+                </p>
+              </td>
+            </tr>
+          </table>
+
+          <!-- Security Note -->
+          <table
+            role="presentation"
+            style="max-width: 600px; width: 100%; margin-top: 20px"
+          >
+            <tr>
+              <td style="padding: 0 20px">
+                <p
+                  style="
+                    margin: 0;
+                    font-size: 11px;
+                    color: #9ca3af;
+                    text-align: center;
+                    line-height: 1.5;
+                  "
+                >
+                  This email was sent because a magic link was requested for your
+                  Snippit account.<br />
+                  If you didn't request this, you can safely ignore this email.
+                </p>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
     </table>
-</body>
+  </body>
 </html>
