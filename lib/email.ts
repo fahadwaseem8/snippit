@@ -29,6 +29,7 @@ class EmailService {
 
   async sendEmail(options: EmailOptions): Promise<boolean> {
     try {
+      console.log('📤 Attempting to send email:', { to: options.to, subject: options.subject })
       const transporter = this.getTransporter()
       if (!transporter) {
         throw new Error('Failed to create email transporter')
@@ -42,11 +43,12 @@ class EmailService {
         html: options.html,
       }
 
+      console.log('📨 Mail options:', { from: mailOptions.from, to: mailOptions.to, subject: mailOptions.subject })
       const info = await transporter.sendMail(mailOptions)
-      console.log('Email sent successfully:', info.messageId)
+      console.log('✅ Email sent successfully:', info.messageId)
       return true
     } catch (error) {
-      console.error('Failed to send email:', error)
+      console.error('❌ Failed to send email:', error)
       return false
     }
   }
@@ -78,6 +80,8 @@ Environment: ${process.env.NODE_ENV || 'development'}
 
   async sendCronEnd(subject: string, details: Record<string, unknown>) {
     const recipient = process.env.CRON_NOTIFICATION_EMAIL
+    console.log('📧 sendCronEnd called:', { subject, recipient: recipient ? 'SET' : 'NOT SET', detailsKeys: Object.keys(details) })
+    
     if (!recipient) {
       console.warn('CRON_NOTIFICATION_EMAIL not set, skipping email notification')
       return false

@@ -6,11 +6,13 @@ export async function GET(request: NextRequest) {
   return withAPILogging(request, async () => {
     try {
       // Send start notification email
-      await emailService.sendCronStart('Health Check', {
+      console.log('🚀 Sending start email...')
+      const startEmailResult = await emailService.sendCronStart('Health Check', {
         triggered_by: 'vercel_cron',
         scheduled_time: '5:00 PM UTC',
         environment: process.env.NODE_ENV || 'development',
       })
+      console.log('🚀 Start email result:', startEmailResult ? 'SENT' : 'FAILED')
 
       // Verify this is a legitimate cron request from Vercel
       const authHeader = request.headers.get('authorization')
@@ -52,13 +54,16 @@ export async function GET(request: NextRequest) {
       })
 
       // Send completion notification email (fire-and-forget, don't await)
+      console.log('🔄 Sending completion email...')
       emailService.sendCronEnd('Health Check', {
         status: 'success',
         response_size: JSON.stringify(cronInfo).length,
         execution_time_ms: Date.now() - new Date(cronInfo.timestamp).getTime(),
         ...cronInfo.server_info,
+      }).then((emailSent) => {
+        console.log('✅ Completion email result:', emailSent ? 'SENT' : 'FAILED')
       }).catch((emailError) => {
-        console.error('Failed to send completion email:', emailError)
+        console.error('❌ Failed to send completion email:', emailError)
       })
 
       return response
