@@ -12,6 +12,14 @@ class EmailService {
 
   private getTransporter() {
     if (!this.transporter) {
+      console.log('🔧 Creating email transporter with config:', {
+        host: process.env.SMTP_HOST,
+        port: process.env.SMTP_PORT,
+        secure: process.env.SMTP_SECURE,
+        user: process.env.SMTP_USER ? 'SET' : 'NOT SET',
+        pass: process.env.SMTP_PASS ? 'SET' : 'NOT SET',
+      })
+
       // Configure SMTP transporter
       // For debugging, we'll use environment variables
       this.transporter = nodemailer.createTransport({
@@ -22,6 +30,10 @@ class EmailService {
           user: process.env.SMTP_USER,
           pass: process.env.SMTP_PASS,
         },
+        // Add connection timeout
+        connectionTimeout: 5000,
+        greetingTimeout: 5000,
+        socketTimeout: 5000,
       })
     }
     return this.transporter
@@ -44,7 +56,14 @@ class EmailService {
       }
 
       console.log('📨 Mail options:', { from: mailOptions.from, to: mailOptions.to, subject: mailOptions.subject })
-      const info = await transporter.sendMail(mailOptions)
+
+      // Add timeout to prevent hanging
+      const emailPromise = transporter.sendMail(mailOptions)
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('Email sending timeout after 10 seconds')), 10000)
+      })
+
+      const info = await Promise.race([emailPromise, timeoutPromise]) as { messageId: string }
       console.log('✅ Email sent successfully:', info.messageId)
       return true
     } catch (error) {
