@@ -28,8 +28,10 @@
     "@lezer/highlight": "^1.2.2",
     "@supabase/ssr": "^0.7.0",
     "@supabase/supabase-js": "^2.75.1",
+    "@types/nodemailer": "^7.0.3",
     "@uiw/react-codemirror": "^4.25.2",
     "next": "15.5.6",
+    "nodemailer": "^7.0.10",
     "react": "19.1.0",
     "react-dom": "19.1.0"
   },
