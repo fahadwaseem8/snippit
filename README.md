@@ -285,13 +285,6 @@ The logo is centrally managed and used in:
    - `NEXT_PUBLIC_SUPABASE_ANON_KEY` - Your Supabase anon/public key
    - `SUPABASE_SERVICE_ROLE_KEY` - Your Supabase service role key
    - `CRON_SECRET` - Secure random string for cron job authentication
-   - `SMTP_HOST` - SMTP server hostname (e.g., smtp.gmail.com)
-   - `SMTP_PORT` - SMTP server port (587 for TLS, 465 for SSL)
-   - `SMTP_SECURE` - Whether to use SSL/TLS (true/false)
-   - `SMTP_USER` - SMTP username/email
-   - `SMTP_PASS` - SMTP password/app password
-   - `SMTP_FROM` - From email address (optional, defaults to SMTP_USER)
-   - `CRON_NOTIFICATION_EMAIL` - Email address to receive cron notifications
 4. Deploy!
 
 **Note**: Vercel will automatically configure the cron job from `vercel.json`.
@@ -340,83 +333,11 @@ Snippit uses Vercel Cron Jobs for automated tasks:
   "crons": [
     {
       "path": "/api/cron/health-check",
-      "schedule": "0 17 * * *"
+      "schedule": "0 0 * * *"
     }
   ]
 }
 ```
-
-See [CRON.md](CRON.md) for detailed documentation on testing and deployment.
-
-## 📧 Cron Email Notifications
-
-The health check cron job sends email notifications to help debug issues:
-
-### Email Types
-- **🚀 Start Email**: Sent when cron job begins execution
-- **✅ Completion Email**: Sent after successful execution
-- **❌ Error Email**: Sent when cron job fails or encounters errors
-
-### Setup Instructions
-
-1. **Choose an SMTP Provider**:
-   - **Gmail**: Use App Passwords (not your regular password)
-   - **Outlook/Hotmail**: Use your account password
-   - **SendGrid/Mailgun**: Use API keys as passwords
-   - **Other SMTP**: Any SMTP server that supports authentication
-
-2. **Configure Environment Variables**:
-   ```bash
-   # Gmail example
-   SMTP_HOST=smtp.gmail.com
-   SMTP_PORT=587
-   SMTP_SECURE=false
-   SMTP_USER=your-email@gmail.com
-   SMTP_PASS=your-gmail-app-password
-   SMTP_FROM=your-email@gmail.com
-   CRON_NOTIFICATION_EMAIL=your-email@gmail.com
-
-   # Outlook example
-   SMTP_HOST=smtp-mail.outlook.com
-   SMTP_PORT=587
-   SMTP_SECURE=false
-   SMTP_USER=your-email@outlook.com
-   SMTP_PASS=your-outlook-password
-   SMTP_FROM=your-email@outlook.com
-   CRON_NOTIFICATION_EMAIL=your-email@outlook.com
-   ```
-
-3. **Gmail App Password Setup**:
-   - Go to [Google Account Settings](https://myaccount.google.com/)
-   - Enable 2-Factor Authentication
-   - Generate App Password for "Mail"
-   - Use the 16-character password as `SMTP_PASS`
-
-### Testing Email Setup
-
-**Test email functionality locally:**
-```bash
-# Set environment variables
-$env:SMTP_HOST="smtp.gmail.com"
-$env:SMTP_PORT="587"
-$env:SMTP_USER="your-email@gmail.com"
-$env:SMTP_PASS="your-app-password"
-$env:CRON_NOTIFICATION_EMAIL="your-email@gmail.com"
-
-# Test the cron endpoint
-curl http://localhost:3000/api/cron/health-check
-```
-
-You should receive 2 emails: one when the cron starts, one when it completes.
-
-### Troubleshooting
-
-- **No emails received**: Check spam folder, verify SMTP credentials
-- **Authentication failed**: For Gmail, ensure you're using an App Password
-- **Connection timeout**: Verify SMTP host and port are correct
-- **Emails work locally but not in production**: Ensure all SMTP env vars are set in Vercel
-
-## � Testing
 
 ### Manual Testing
 
