@@ -1,19 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { withAPILogging } from '@/lib/api-logger'
-import { emailService } from '@/lib/email'
 
 export async function GET(request: NextRequest) {
   return withAPILogging(request, async () => {
     try {
-      // Send start notification email
-      console.log('🚀 Sending start email...')
-      const startEmailResult = await emailService.sendCronStart('Health Check', {
-        triggered_by: 'vercel_cron',
-        scheduled_time: '5:00 PM UTC',
-        environment: process.env.NODE_ENV || 'development',
-      })
-      console.log('🚀 Start email result:', startEmailResult ? 'SENT' : 'FAILED')
-
       // Verify this is a legitimate cron request from Vercel
       const authHeader = request.headers.get('authorization')
       
@@ -21,12 +11,6 @@ export async function GET(request: NextRequest) {
       // For local testing, we'll allow requests without it
       if (process.env.NODE_ENV === 'production') {
         if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
-          // Send error notification for unauthorized access
-          await emailService.sendCronError('Health Check - Unauthorized', 'Invalid or missing CRON_SECRET', {
-            auth_header_present: !!authHeader,
-            expected_secret: !!process.env.CRON_SECRET,
-          })
-          
           return NextResponse.json(
             { error: 'Unauthorized' },
             { status: 401 }
@@ -38,7 +22,7 @@ export async function GET(request: NextRequest) {
         type: 'scheduled_health_check',
         timestamp: new Date().toISOString(),
         day: new Date().toLocaleDateString('en-US', { weekday: 'long' }),
-        scheduled_message: 'Automated daily health check at 5:00 PM UTC',
+        scheduled_message: 'Automated daily health check at midnight UTC',
         server_info: {
           node_version: process.version,
           platform: process.platform,
@@ -53,30 +37,10 @@ export async function GET(request: NextRequest) {
         ...cronInfo,
       })
 
-      // Send completion notification email (fire-and-forget, don't await)
-      console.log('🔄 Sending completion email...')
-      emailService.sendCronEnd('Health Check', {
-        status: 'success',
-        response_size: JSON.stringify(cronInfo).length,
-        execution_time_ms: Date.now() - new Date(cronInfo.timestamp).getTime(),
-        ...cronInfo.server_info,
-      }).then((emailSent) => {
-        console.log('✅ Completion email result:', emailSent ? 'SENT' : 'FAILED')
-      }).catch((emailError) => {
-        console.error('❌ Failed to send completion email:', emailError)
-      })
-
       return response
     } catch (error) {
       console.error('Cron health check error:', error)
       
-      // Send error notification email
-      await emailService.sendCronError('Health Check', error as Error, {
-        error_type: error instanceof Error ? error.constructor.name : typeof error,
-        timestamp: new Date().toISOString(),
-        environment: process.env.NODE_ENV || 'development',
-      })
-
       return NextResponse.json(
         { error: 'Health check failed' },
         { status: 500 }
